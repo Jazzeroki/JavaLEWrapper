@@ -1,4 +1,4 @@
-package javaLEWrapper;
+package javaLEWrapper.Wrapper;
 
 //import com.google.gson.Gson;
 import java.io.*;
@@ -17,11 +17,14 @@ public class Server {
             connection.setDoOutput(true);
             OutputStreamWriter out = new OutputStreamWriter(connection.getOutputStream());
             out.write(JsonRequest);
+            //System.out.println("Sending Request");
             out.close();
+            //System.out.println("Closing request");
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+            //System.out.println("Reading in from stream");
             String output = in.readLine();
             i = output;
-            //System.out.println(output);
+            System.out.println("Response from server"+output);
             //response = gson.fromJson(output, Response.class);
 
         } catch (java.net.MalformedURLException e) {

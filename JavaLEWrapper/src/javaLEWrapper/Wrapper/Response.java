@@ -1,4 +1,4 @@
-package javaLEWrapper;
+package javaLEWrapper.Wrapper;
 import java.util.*;
 
 public class Response {
@@ -68,6 +68,11 @@ public class Response {
     }
     class Data{
         String guid, url;
+    }
+    class Messages{
+    	String id, from, from_id, to, to_id, subject, date, in_reply_to, body_preview;
+    	String [] tags, recipients;
+    	int has_read, has_replied, has_archived, has_trashed;
     }
 
 }
