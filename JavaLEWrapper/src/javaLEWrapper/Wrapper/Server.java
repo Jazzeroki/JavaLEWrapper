@@ -12,6 +12,11 @@ public class Server {
         String i = null;
         //Gson gson = new Gson();
         try {
+        	try { //putting thread to sleep for just over a second to throttle client because of the limit of 60 calls per minute
+        	    Thread.sleep(1100);
+        	} catch(InterruptedException ex) {
+        	    Thread.currentThread().interrupt();
+        	}
             URL url = new URL(gameServer+"/" + methodURL);
             URLConnection connection = url.openConnection();
             connection.setDoOutput(true);

@@ -141,12 +141,14 @@ public class main {
     }
     static void MainMenu(){
     	int i = 0;
-    	int control;
+    	int control = 0;
     	Scanner input = new Scanner(System.in);
     	do{
     		PrintMainMenu();
     		try{
+    			System.out.println("starting try block");
     			control = input.nextInt();
+    			System.out.println(control);
     			switch(control){
     			case 1:
     				System.out.println("not implemented yet");
@@ -182,6 +184,7 @@ public class main {
     		}
     		
     	}while(i==0);
+    	input.close();
     }
     static void SeperateSSandPlanets(){}
     
