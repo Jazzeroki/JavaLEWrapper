@@ -14,7 +14,10 @@ public class Response {
         Error error;
         Body body;
         Map<Integer, building>buildings;
+        Messages messages[];//used when previewing multiple messages
+        Messages message; //used when reading a single message
     }
+
     class Ore{
     	int flourite, zircon, anthracite, gypsum, chromite, sulfur, chalcopyrite, gold, trona, methane, magnetite, halite, rutile, goethite, bauxite, kerogen, uraninite, beryl, galena, monazite; 
     }
@@ -70,9 +73,9 @@ public class Response {
         String guid, url;
     }
     class Messages{
-    	String id, from, from_id, to, to_id, subject, date, in_reply_to, body_preview;
+    	String from, to, subject, date, in_reply_to, body_preview, body;
     	String [] tags, recipients;
-    	int has_read, has_replied, has_archived, has_trashed;
+    	int has_read, has_replied, has_archived, has_trashed, id, from_id, to_id;
     }
 
 }

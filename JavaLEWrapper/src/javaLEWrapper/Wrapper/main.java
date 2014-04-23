@@ -1,10 +1,12 @@
 package javaLEWrapper.Wrapper;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.util.InputMismatchException;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
+import javaLEWrapper.Wrapper.Response.Messages;
 
 
 public class main {
@@ -12,11 +14,11 @@ public class main {
 	static String sessionID = null;
 	static String gameServer = null;
 	static Gson gson = new Gson();
-	static Server server = new Server();
-	
+	static Server server = new Server();	
 	static int newMessages;
 	static Map <String, String> planetList;
-    public static void main(String[] args) {
+    
+	public static void main(String[] args) {
     	GetSession();
     	MainMenu();
     	//System.out.println(sessionID);
@@ -104,13 +106,10 @@ public class main {
     static void GetSession(){
     	AccountManager a = new AccountManager();
     	//System.out.println("Calling Get account");
+	    if(!new File("Account.Jazz").isFile()){ //if an account file doesn't exist one is created
+	    	a.CreateAccount();
+	    }
     	String i = a.GetAccount();
-    	//System.out.println(i);
-    	if (i.isEmpty()){ //Get account returns null if the file isn't found, so create account, then get the account
-    		//System.out.println("Account was empty");
-    		a.CreateAccount();
-    		i = a.GetAccount();
-    	}
     	//Need to deserialize string
     	AccountInfo account = new AccountInfo();
     	account = gson.fromJson(i, AccountInfo.class);
@@ -146,9 +145,9 @@ public class main {
     	do{
     		PrintMainMenu();
     		try{
-    			System.out.println("starting try block");
+    			//System.out.println("starting try block");
     			control = input.nextInt();
-    			System.out.println(control);
+    			//System.out.println(control);
     			switch(control){
     			case 1:
     				System.out.println("not implemented yet");
@@ -159,8 +158,8 @@ public class main {
     				PrintMainMenu();
     				break;
     			case 3:
-    				System.out.println("not implemented yet");
-    				PrintMainMenu();
+    				//System.out.println("not implemented yet");
+    				MessageBoxMenu();
     				break;
     			case 4:
     				System.out.println("not implemented yet");
@@ -194,6 +193,118 @@ public class main {
     //Station Controls
     static void PrintSSList(){}
     
-    
+    //Message Controls
+    static void PrintMessageBoxMenu(){
+    	System.out.println("Mail Box: You have "+newMessages +" new messages");
+    	System.out.println("Enter a number for your selection");
+    	System.out.println("1, Correspondence");
+    	System.out.println("2, Intelligence");
+    	System.out.println("3, Spies");
+    	System.out.println("4, Trade");
+    	System.out.println("5, Complaint");
+    	System.out.println("6, Excavator");
+    	System.out.println("7, Parliament");
+    	System.out.println("8, Alert");
+    	System.out.println("9, Attack");
+    	System.out.println("0, Return to Main Menu");
+    }
+    static void MessageBoxMenu(){
+    	int i = 0;
+    	int control = 0;
+    	Scanner input = new Scanner(System.in);
+    	do{
+    		PrintMessageBoxMenu();
+    		try{
+    			//System.out.println("starting try block");
+    			control = input.nextInt();
+    			//System.out.println(control);
+    			switch(control){
+    			case 1:
+    				MessageBoxReader("Correspondence");
+    				break;
+    			case 2:
+    				MessageBoxReader("Intelligence");
+    				break;
+    			case 3:
+    				MessageBoxReader("Spies");
+    				break;
+    			case 4:
+    				MessageBoxReader("Trade");
+    				break;
+    			case 5:
+    				MessageBoxReader("Complaint");
+    				break;
+    			case 6:
+    				MessageBoxReader("Excavator");
+    				break;
+    			case 7:
+    				MessageBoxReader("Parliament");
+    				break;
+    			case 8:
+    				MessageBoxReader("Alert");
+    				break;
+    			case 0:
+    				MessageBoxReader("Attack");
+    				break;
+    			default:
+    				System.out.println("Invalid Selection");
+    				MessageBoxMenu();
+    			}
+    				
+    			
+    		}catch(InputMismatchException e){
+    			System.out.println("Not a valid selection.");
+    			
+    		}
+    		
+    	}while(i==0);
+    	input.close();
+    }
+    static void MessageBoxReader(String type){
+    	System.out.println(type+" Messages");
+    	Inbox in = new Inbox();
+    	String i = in.ViewInbox(sessionID, type);
+    	
+    	//sends out request
+    	i = server.ServerRequest(gameServer, in.url, i);
+    	Response r = gson.fromJson(i, Response.class);
+    	
+    	int o = 0; //for menu control
+    	for(Messages message : r.result.messages){ //iterates through received messages and prints out a selection menu
+    		System.out.println("\nPress "+(o+1)+" to read message");
+    		System.out.println(message.from);
+    		System.out.println(message.subject);
+    		System.out.println(message.body_preview);
+    		o++;
+    	}
+    	System.out.println("\nEnter 0 to return to Message Main Menu");
+    	
+    	int c = 1;
+    	int control = 0;
+    	Scanner input = new Scanner(System.in);
+    	do{
+    		System.out.println("Select a message to read or 0 to return");
+    		try{
+    			control = input.nextInt();
+    			if(control == 0){
+    				c=0;
+    				MessageBoxMenu();}
+    			else{
+    				control--;
+    				i = in.ReadMessage(1, sessionID, Integer.toString(r.result.messages[(o-1)].id ));
+    				i = server.ServerRequest(gameServer, in.url, i);
+    				r = gson.fromJson(i, Response.class);
+    				System.out.println(r.result.message.body);
+    	    	}
+    			
+    		}catch(InputMismatchException e){
+    			System.out.println("Not a valid selection.");
+    			
+    		}
+    		
+    	}while(c==0);
+    	input.close();
+    	//System.out.println(r.result.messages[1].subject);
+    }
 }
 

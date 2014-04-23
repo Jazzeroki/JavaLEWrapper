@@ -1,5 +1,6 @@
 package javaLEWrapper.Wrapper;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -59,6 +60,8 @@ public class AccountManager {
 		String password = input.next();
 		
 		SaveToFile(userName, password, apiKey, server);
+		
+		input.close();
 	}
 //	void LoadFromFile(){}
 	void SaveToFile(String userName, String password, String apiKey, String server){
@@ -83,7 +86,7 @@ public class AccountManager {
 	}
 	String  GetAccount(){
 	    BufferedReader br = null;
-	    String i = null;
+	    String i = null;	    	
 		try {
 			//System.out.println("Reading File");
 			br = new BufferedReader(new FileReader("Account.Jazz"));

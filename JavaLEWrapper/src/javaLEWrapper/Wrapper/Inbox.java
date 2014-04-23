@@ -4,6 +4,13 @@ import java.io.IOException;
 
 public class Inbox extends LESuperClass {
 	String url = "inbox";
+
+	String ViewInbox(String sessionID, String tag ){
+		return "{\"jsonrpc\":2,\"id\":1,\"method\":\"view_inbox\",\"params\":[\""+sessionID+"\",{\"tags\":[\""+tag+"\"],\"page_number\":1}]}";
+	}
+	String ViewInbox(String sessionID, String tag, int pageNumber ){
+		return "{\"jsonrpc\":2,\"id\":1,\"method\":\"view_inbox\",\"params\":[\""+sessionID+"\",{\"tags\":[\""+tag+"\"],\"page_number\":"+pageNumber+"}]}";
+	}
 	String ViewInbox(int RequestID, String sessionID, MessageTags tag ){
 		StartOfObject(RequestID, "view_inbox");
 		String i = "nothing";
@@ -23,7 +30,7 @@ public class Inbox extends LESuperClass {
 			i = CleanJsonObject(i);
 			
 		} catch (IOException e) {
-			System.out.println("Exception in view Inboxy");
+			System.out.println("Exception in view Inbox");
 			// TODO Auto-generated catch block
 			i = "request build failed";
 			e.printStackTrace();
@@ -32,7 +39,7 @@ public class Inbox extends LESuperClass {
 		//return i;
 	}
 	String ReadMessage(int RequestID, String sessionID, String MessageID){
-		StartOfObject(RequestID, "view_inbox");
+		StartOfObject(RequestID, "read_message");
 		String i = "nothing";
 		try {
 			writer.value(sessionID);
