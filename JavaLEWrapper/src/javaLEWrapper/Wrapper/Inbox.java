@@ -11,7 +11,7 @@ public class Inbox extends LESuperClass {
 	String ViewInbox(String sessionID, String tag, int pageNumber ){
 		return "{\"jsonrpc\":2,\"id\":1,\"method\":\"view_inbox\",\"params\":[\""+sessionID+"\",{\"tags\":[\""+tag+"\"],\"page_number\":"+pageNumber+"}]}";
 	}
-	String ViewInbox(int RequestID, String sessionID, MessageTags tag ){
+	/*String ViewInbox(int RequestID, String sessionID, MessageTags tag ){
 		StartOfObject(RequestID, "view_inbox");
 		String i = "nothing";
 		try {
@@ -37,7 +37,7 @@ public class Inbox extends LESuperClass {
 		}
 		return i = "{\"jsonrpc\":2,\"id\":1,\"method\":\"view_inbox\",\"params\":[\""+sessionID+"\",{\"tags\":[\"Correspondence\"],\"page_number\":1}]}";
 		//return i;
-	}
+	} */
 	String ReadMessage(int RequestID, String sessionID, String MessageID){
 		StartOfObject(RequestID, "read_message");
 		String i = "nothing";
@@ -58,9 +58,30 @@ public class Inbox extends LESuperClass {
 		}
 		return i;
 	}
-	enum MessageTags{
-		Tutorial, Correspondence, Medal, Intelligence, Alert, Attack, Colonization, Complaint, Excavator, Mission, Parliament, Probe, Spies, Trade, Fissure;
+	String SendMessage(String sessionID, String recipients, String subject, String body){
+		StartOfObject(1, "send_message");
+		String i = "0";
+		try{
+			writer.value(sessionID);
+			writer.value(recipients);
+			writer.value(subject);
+			writer.value(body);
+			writer.endArray();
+			writer.endObject();
+			writer.close();
+			i = gson.toJson(writer);
+			i = CleanJsonObject(i);
+		}catch(IOException e){
+			System.out.println("ioexception");
+		}catch(NullPointerException e){
+			System.out.println("null pointer exception");
+		}finally{
+		}
+		return i;
 	}
+/*enum MessageTags{  //will be leaving this as an option to use in the future, but currently just passing a string directly to the methods instead
+		Tutorial, Correspondence, Medal, Intelligence, Alert, Attack, Colonization, Complaint, Excavator, Mission, Parliament, Probe, Spies, Trade, Fissure;
+	} */
 
 }
 /*

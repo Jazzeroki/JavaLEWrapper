@@ -2,11 +2,15 @@ package javaLEWrapper.Wrapper;
 import com.google.gson.Gson;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.InputMismatchException;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
+
 import javaLEWrapper.Wrapper.Response.Messages;
+import javaLEWrapper.Wrapper.Response.Result;
 
 
 public class main {
@@ -16,7 +20,9 @@ public class main {
 	static Gson gson = new Gson();
 	static Server server = new Server();	
 	static int newMessages;
-	static Map <String, String> planetList;
+	static Map <String, String> planetList = new HashMap <String, String>() ;
+	static Map <String, Response.Result> stations = new HashMap<>();
+	static Map <String, Response.Result> planets = new HashMap<>();
     
 	public static void main(String[] args) {
     	GetSession();
@@ -45,6 +51,9 @@ public class main {
     	l = server.ServerRequest("https://us1.lacunaexpanse.com", "body", l);
     	System.out.println(l);
     	response = gson.fromJson(l, Response.class);
+    	
+    	
+    	
     	System.out.println(response.result.status.empire.planets.get(BodyID));
     	System.out.println(response.result.status.empire.planets.values());
     	System.out.println(response.result.status.empire.planets.keySet());
@@ -150,15 +159,12 @@ public class main {
     			//System.out.println(control);
     			switch(control){
     			case 1:
-    				System.out.println("not implemented yet");
-    				PrintMainMenu();
+    				PlanetControlsMenu();
     				break;
     			case 2:
-    				System.out.println("not implemented yet");
-    				PrintMainMenu();
+    				SSControlsMenu();
     				break;
     			case 3:
-    				//System.out.println("not implemented yet");
     				MessageBoxMenu();
     				break;
     			case 4:
@@ -172,8 +178,134 @@ public class main {
     			default:
     				System.out.println("Invalid Selection");
     				PrintMainMenu();
-    					
-    			
+    			}	
+    		}catch(InputMismatchException e){
+    			System.out.println("Not a valid selection.");   			
+    		}		
+    	}while(i==0);
+    	input.close();
+    }
+    static void SeperateSSandPlanets(){
+    	Set<String> buildingkeys = planetList.keySet();
+    	int endloop = 0;
+    	if (planets.isEmpty()) //stops the method from running if the planet list is full
+    	{
+    	for(String j: buildingkeys){
+    		Body body = new Body();
+    		String request = body.GetBuildings(1, sessionID, j);
+    		String reply = server.ServerRequest(gameServer, body.url, request);
+    		Response r = gson.fromJson(reply, Response.class);
+    		if (r.result.body.surface_image.equals("surface-station")) { 
+    			stations.put(j, r.result);
+    			System.out.println(r.result.status.body.name);
+    			//System.out.println(r.result.session_id);
+    			//System.out.println(r.result.buildings);
+    		}
+    		else{
+    			planets.put(j, r.result);
+    			System.out.println(r.result.status.body.name);
+    			//System.out.println(r.result.session_id);
+    			//System.out.println(r.result.buildings);
+    		}
+    		System.out.println(j);
+    		endloop++;
+    		if (endloop == 10)
+    			break;
+    	}
+    	}
+    }//seperates planets from stations and retrieves their building info
+    static void PlanetStatusCheck(){
+    	//for(String r : planets)
+    	for(Entry<String, Result> e : planets.entrySet()){
+    		System.out.println(e.getValue().status.body.name);
+    		System.out.println(e.getKey());
+    		if(Double.parseDouble(e.getValue().status.body.num_incoming_enemy) > 0)
+    			System.out.println("Enemy Incoming: "+e.getValue().status.body.num_incoming_enemy);
+    		if(Double.parseDouble(e.getValue().status.body.plots_available) < 0)
+    			System.out.println("Negative plots likely bleeders present or planet out of orbit: "+ e.getValue().status.body.plots_available);
+    		
+    		if(e.getValue().status.body.water_stored < 50000)
+    			System.out.println("Low Water: "+ e.getValue().status.body.water_stored);
+    		if(e.getValue().status.body.water_hour < 50000)
+    			System.out.println("Low Water Production: "+ e.getValue().status.body.water_hour);
+    		
+    		if(e.getValue().status.body.energy_stored < 50000)
+    			System.out.println("Low Energy: "+ e.getValue().status.body.energy_stored);
+    		if(e.getValue().status.body.energy_hour < 50000)
+    			System.out.println("Low Energy production: "+ e.getValue().status.body.energy_hour);
+    		
+    		if(e.getValue().status.body.food_stored < 50000)
+    			System.out.println("Low food: "+ e.getValue().status.body.food_stored);
+    		if(e.getValue().status.body.food_hour < 50000)
+    			System.out.println("Low food production: "+ e.getValue().status.body.food_hour);
+    		
+    		if(e.getValue().status.body.ore_stored < 50000)
+    			System.out.println("Low ore: "+ e.getValue().status.body.ore_stored);
+    		if(e.getValue().status.body.ore_hour < 50000)
+    			System.out.println("Low ore production: "+ e.getValue().status.body.ore_hour);
+    				
+    		if(e.getValue().status.body.happiness < 50000)
+    			System.out.println("Low happiness: "+ e.getValue().status.body.happiness);
+    		if(e.getValue().status.body.happiness_hour < 50000)
+    			System.out.println("Low happiness: "+ e.getValue().status.body.happiness_hour);
+    	}
+    }
+    static void StationStatusCheck(){
+    	//for(String r : planets)
+    	for(Entry<String, Result> e : planets.entrySet()){
+    		System.out.println(e.getValue().status.body.name);
+    		System.out.println(e.getKey());
+    		if(Double.parseDouble(e.getValue().status.body.num_incoming_enemy) > 0)
+    			System.out.println("Enemy Incoming: "+e.getValue().status.body.num_incoming_enemy);
+    		if(Double.parseDouble(e.getValue().status.body.plots_available) < 0)
+    			System.out.println("Negative plots likely bleeders present or planet out of orbit: "+ e.getValue().status.body.plots_available);
+    		
+    		if(e.getValue().status.body.water_stored < 50000)
+    			System.out.println("Low Water: "+ e.getValue().status.body.water_stored);
+    		if(e.getValue().status.body.water_hour < 50000)
+    			System.out.println("Low Water Production: "+ e.getValue().status.body.water_hour);
+    		
+    		if(e.getValue().status.body.energy_stored < 50000)
+    			System.out.println("Low Energy: "+ e.getValue().status.body.energy_stored);
+    		if(e.getValue().status.body.energy_hour < 50000)
+    			System.out.println("Low Energy production: "+ e.getValue().status.body.energy_hour);
+    		
+    		if(e.getValue().status.body.food_stored < 50000)
+    			System.out.println("Low food: "+ e.getValue().status.body.food_stored);
+    		if(e.getValue().status.body.food_hour < 50000)
+    			System.out.println("Low food production: "+ e.getValue().status.body.food_hour);
+    		
+    		if(e.getValue().status.body.ore_stored < 50000)
+    			System.out.println("Low ore: "+ e.getValue().status.body.ore_stored);
+    		if(e.getValue().status.body.ore_hour < 50000)
+    			System.out.println("Low ore production: "+ e.getValue().status.body.ore_hour);
+    		
+    	}
+    }
+    //Planetary Controls
+    static void PrintPlanetControlsMenu(){
+    	System.out.println("1: Perform Status Check.  This will sort bodies from SS if it's the first time it's run");
+    	System.out.println("0: To return to the main menu");
+    }
+    static void PlanetControlsMenu(){
+    	int i = 0;
+    	int control = 0;
+    	Scanner input = new Scanner(System.in);
+    	do{
+    		PrintPlanetControlsMenu();
+    		try{
+    			control = input.nextInt();
+    			switch(control){
+    			case 1:
+    				SeperateSSandPlanets();
+    				PlanetStatusCheck();
+    				break;
+    			case 0:
+    				MainMenu();
+    				break;
+    			default:
+    				System.out.println("Invalid Selection");
+    				MessageBoxMenu();
     			}
     				
     			
@@ -185,12 +317,39 @@ public class main {
     	}while(i==0);
     	input.close();
     }
-    static void SeperateSSandPlanets(){}
-    
-    //Planetary Controls
     static void PrintPlanetList(){}
     
     //Station Controls
+    static void PrintSSControlsMenu(){
+    	System.out.println("1: Perform Status Check.  This will sort bodies from SS if it's the first time it's run");
+    	System.out.println("0: To return to the main menu");
+    }
+    static void SSControlsMenu(){
+    	int i = 0;
+    	int control = 0;
+    	Scanner input = new Scanner(System.in);
+    	do{
+    		PrintPlanetControlsMenu();
+    		try{
+    			control = input.nextInt();
+    			switch(control){
+    			case 1:
+    				SeperateSSandPlanets();
+    				StationStatusCheck();
+    				break;
+    			case 0:
+    				MainMenu();
+    				break;
+    			default:
+    				System.out.println("Invalid Selection");
+    				MessageBoxMenu();
+    			}					
+    		}catch(InputMismatchException e){
+    			System.out.println("Not a valid selection.");			
+    		}		
+    	}while(i==0);
+    	input.close();
+    }
     static void PrintSSList(){}
     
     //Message Controls

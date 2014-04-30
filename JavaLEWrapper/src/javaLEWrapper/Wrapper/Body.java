@@ -8,6 +8,7 @@ import java.io.StringWriter;
 //import java.util.regex.*;
 
 public class Body extends LESuperClass {
+	String url = "body";
 	String GetBuildings(int requestID, String SessionID, String BodyID){
 		StartOfObject(requestID, "get_buildings");
 		String i = "0";
@@ -18,6 +19,7 @@ public class Body extends LESuperClass {
 			writer.endObject();
 			writer.close();
 			i = gson.toJson(writer);
+			//writer.flush();
 			i = CleanJsonObject(i);
 		}catch(IOException e){
 			System.out.println("ioexception");

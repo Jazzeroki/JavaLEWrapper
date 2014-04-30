@@ -17,9 +17,10 @@ public class Response {
         Messages messages[];//used when previewing multiple messages
         Messages message; //used when reading a single message
     }
+    
 
     class Ore{
-    	int flourite, zircon, anthracite, gypsum, chromite, sulfur, chalcopyrite, gold, trona, methane, magnetite, halite, rutile, goethite, bauxite, kerogen, uraninite, beryl, galena, monazite; 
+    	double flourite, zircon, anthracite, gypsum, chromite, sulfur, chalcopyrite, gold, trona, methane, magnetite, halite, rutile, goethite, bauxite, kerogen, uraninite, beryl, galena, monazite; 
     }
     class building{
     	int x, y;
@@ -33,14 +34,17 @@ public class Response {
     	int is_ally, is_own;
     }
     class Body{
-    	String surface_image, name, type, zone, x, y, surface_refresh, size, orbit, surface_version, image, num_incoming_own, num_incoming_ally, num_incoming_enemy, star_name; 
-    	int population, ore_capacity, water_stored, waste_stored, energy_capacity, water_hour, happiness, food_hour, building_count, water_capacity, energy_stored, waste_hour, food_capacity;
+    	
+		String surface_image, name, type, zone, x, y, surface_refresh, size, orbit, surface_version, image, num_incoming_own, num_incoming_ally, num_incoming_enemy, star_name, propaganda_boost, plots_available; 
+    	Double population, ore_capacity, water_stored, waste_stored, food_stored, ore_stored, ore_hour, energy_capacity, water_hour, happiness, happiness_hour, food_hour, building_count, water_capacity, energy_stored, energy_hour, waste_hour, food_capacity;
     	Ore ore;
     	Station station;
     	IncomingShips[] incoming_enemy_ships, incoming_own_ships;
     }
     class Status{
         Empire empire;
+        Body body;
+        Server server;
     }
     class Empire{
         int rpc_count;
