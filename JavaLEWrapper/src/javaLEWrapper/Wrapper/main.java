@@ -20,9 +20,9 @@ public class main {
 	static Gson gson = new Gson();
 	static Server server = new Server();	
 	static int newMessages;
-	static Map <String, String> planetList = new HashMap <String, String>() ;
-	static Map <String, Response.Result> stations = new HashMap<>();
-	static Map <String, Response.Result> planets = new HashMap<>();
+	static HashMap <String, String> planetList = new HashMap <String, String>() ;
+	static HashMap <String, Response.Result> stations = new HashMap<>();
+	static HashMap <String, Response.Result> planets = new HashMap<>();
     
 	public static void main(String[] args) {
     	GetSession();
@@ -318,6 +318,33 @@ public class main {
     	input.close();
     }
     static void PrintPlanetList(){}
+    
+   
+    static void RepairBuilding(String buildingID, String buildingName){
+    	//buildingName is used in place of the url as all buildings inherit repair from building but use their own names for their urls
+    	Buildings building = new Buildings();
+		String request = building.Repair(sessionID, buildingID);
+		String reply = server.ServerRequest(gameServer, buildingName, request);
+		Response r = gson.fromJson(reply, Response.class);
+    }
+    static void RepairAllPlanetBuildings(String planetIDNumber){
+    	//dumbly iterates through all buildings on a planet attempting repairs if efficiency is less than 0
+    	//Will save lost city for last as it's repairs are the most expensive
+    	HashMap<Integer, Response.Building> buildings = planets.get(planetIDNumber).buildings;
+    	Set<Integer> buildingkeys = buildings.keySet();
+    	Response.Building b;
+    	String bnumber;
+    	for(Integer j: buildingkeys){
+    		bnumber = String.valueOf(j);
+    		b = buildings.get(j);
+    		if(Integer.parseInt(b.efficiency)<100){
+    			System.out.println("Repairing Building: "+b.name);
+    			RepairBuilding(bnumber,b.name );
+    		}
+    	}
+    }
+    //static void RepairAllBuildings(){}
+    //static void RepairGlyphBuildings(){}
     
     //Station Controls
     static void PrintSSControlsMenu(){

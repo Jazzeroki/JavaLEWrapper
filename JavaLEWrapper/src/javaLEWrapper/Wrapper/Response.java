@@ -13,7 +13,7 @@ public class Response {
         Status status;
         Error error;
         Body body;
-        Map<Integer, building>buildings;
+        HashMap<Integer, Building>buildings;
         Messages messages[];//used when previewing multiple messages
         Messages message; //used when reading a single message
     }
@@ -22,9 +22,9 @@ public class Response {
     class Ore{
     	double flourite, zircon, anthracite, gypsum, chromite, sulfur, chalcopyrite, gold, trona, methane, magnetite, halite, rutile, goethite, bauxite, kerogen, uraninite, beryl, galena, monazite; 
     }
-    class building{
+    class Building{
     	int x, y;
-    	String name, url;	
+    	String name, url, efficiency, level, image;	
     }
     class Station{
     	String x, y, name, id;
@@ -49,7 +49,7 @@ public class Response {
     class Empire{
         int rpc_count;
         int has_new_messages;
-        Map <String, String> planets;
+        HashMap <String, String> planets;
         String self_destruct_active;
         String name;
         String status_message;
