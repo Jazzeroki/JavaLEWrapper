@@ -9,7 +9,7 @@ public class Response {
     
     //Inner Class Definitions
     class Result{
-        String session_id;
+        String session_id, url, guid;
         Status status;
         Error error;
         Body body;

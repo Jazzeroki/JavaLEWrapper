@@ -4,10 +4,13 @@ import com.google.gson.Gson;
 import java.io.File;
 import java.util.HashMap;
 import java.util.InputMismatchException;
-import java.util.Map;
+//import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.Set;
+//import java.io.Console;
+import java.net.URL;
+import java.awt.Desktop;
 
 import javaLEWrapper.Wrapper.Response.Messages;
 import javaLEWrapper.Wrapper.Response.Result;
@@ -146,6 +149,7 @@ public class main {
     	System.out.println("3, Messages: "+newMessages);
     	System.out.println("4, Account Management");
     	System.out.println("5, Logout");
+    	System.out.println("6, Experiments");
     }
     static void MainMenu(){
     	int i = 0;
@@ -175,6 +179,9 @@ public class main {
     				System.out.println("not implemented yet");
     				PrintMainMenu();
     				break;
+    			case 6:
+    				ExperimentalMethodsMenu();
+    				break;
     			default:
     				System.out.println("Invalid Selection");
     				PrintMainMenu();
@@ -185,6 +192,93 @@ public class main {
     	}while(i==0);
     	input.close();
     }
+    static void PrintExperimentalMenu(){
+    	System.out.println("1: Captcha test");
+    	System.out.println("0: to return to main menu");
+    }
+    static void ExperimentalMethodsMenu(){
+    	int i = 0;
+    	int control = 0;
+    	Scanner input = new Scanner(System.in);
+    	do{
+    		PrintExperimentalMenu();
+    		try{
+    			control = input.nextInt();
+    			switch(control){
+    			case 1:
+    				Captcha();
+    				break;
+    			case 0:
+    				PlanetControlsMenu();
+    				break;
+    			default:
+    				System.out.println("Invalid Selection");
+    				PrintMainMenu();
+    			}	
+    		}catch(InputMismatchException e){
+    			System.out.println("Not a valid selection.");   			
+    		}		
+    	}while(i==0);
+    	input.close();
+    }
+    //experimental methods
+    static void Captcha(){
+    	Captcha c = new Captcha();
+    	String request = c.Fetch(sessionID);
+		String reply = server.ServerRequest(gameServer, c.url, request);
+		System.out.println(reply);
+		Response r = gson.fromJson(reply, Response.class);
+		//Console console = System.console();
+		
+		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
+	    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
+	        try {
+	        	URL url = new URL(r.result.url);
+	            desktop.browse(url.toURI());
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+	    }
+		
+	    //for getting the answer
+	    //Console console = System.console();
+	    //System.out.println("test");
+	    Scanner input = new Scanner(System.in);
+	    String solution = input.next();
+	    //String solution = console.readLine("Enter Answer ");
+	    Captcha d = new Captcha();
+	    request = d.Solve(sessionID, r.result.guid, solution);
+	    System.out.println(request);
+	    reply = server.ServerRequest(gameServer, d.url, request);
+	    System.out.println(reply);
+	    //if r.result is equal to 1 the captcha worked
+	    
+    }
+    static int FindBuildingID(String buildingName, HashMap<Integer, Response.Building> buildings){
+    	int i = 0;
+    	if(buildings.containsValue(buildingName)){
+    		System.out.println("found "+ buildingName);
+    		Set<Integer> buildingkeys = buildings.keySet();
+    		String name ="";
+    		for(int j: buildingkeys){
+        		name = buildings.get(j).name;
+        		//System.out.println(buildings.get(j).name+" "+j);
+        		if(name.equals(buildingName)){	
+        			//buildingID = Integer.toString(j);
+        			System.out.println(j);
+        			i = j;
+        			return i;
+        		}
+    		}
+    	}
+    	else{
+    		
+    	}
+    	
+    	
+    	return i;
+    }
+    
     static void SeperateSSandPlanets(){
     	Set<String> buildingkeys = planetList.keySet();
     	int endloop = 0;
