@@ -9,7 +9,8 @@ public class Response {
     
     //Inner Class Definitions
     class Result{
-        String session_id, url, guid;
+        String session_id, url, guid, number_of_ships_building, cost_to_subsidize;
+        ArrayList <ShipsBuilding> ships_building;
         Status status;
         Error error;
         Body body;
@@ -17,14 +18,19 @@ public class Response {
         Messages messages[];//used when previewing multiple messages
         Messages message; //used when reading a single message
     }
-    
-
+    class Work{
+    	String start, end, seconds_remaining;
+    }
+    class ShipsBuilding{
+    	String date_completed, id, type, type_human; //type is the server recognized name, type human is for human readibility
+    }
     class Ore{
     	double flourite, zircon, anthracite, gypsum, chromite, sulfur, chalcopyrite, gold, trona, methane, magnetite, halite, rutile, goethite, bauxite, kerogen, uraninite, beryl, galena, monazite; 
     }
     class Building{
     	int x, y;
     	String name, url, efficiency, level, image;	
+    	Work work;
     }
     class Station{
     	String x, y, name, id;
@@ -50,6 +56,7 @@ public class Response {
         int rpc_count;
         int has_new_messages;
         HashMap <String, String> planets;
+        HashMap <String, String> space_stations;
         String self_destruct_active;
         String name;
         String status_message;

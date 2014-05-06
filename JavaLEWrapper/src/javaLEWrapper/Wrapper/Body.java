@@ -9,24 +9,8 @@ import java.io.StringWriter;
 
 public class Body extends LESuperClass {
 	String url = "body";
-	String GetBuildings(int requestID, String SessionID, String BodyID){
-		StartOfObject(requestID, "get_buildings");
-		String i = "0";
-		try{
-			writer.value(SessionID);
-			writer.value(BodyID);
-			writer.endArray();
-			writer.endObject();
-			writer.close();
-			i = gson.toJson(writer);
-			//writer.flush();
-			i = CleanJsonObject(i);
-		}catch(IOException e){
-			System.out.println("ioexception");
-		}catch(NullPointerException e){
-			System.out.println("null pointer exception");
-		}finally{
-		}
+	String GetBuildings(int requestID, String sessionID, String bodyID){
+		String i = BasicRequest("get_buildings", sessionID, bodyID );
 		return i;
 	}
 	void RepairList(int requestID, String SessionID, String BodyID, String ...buildings){}

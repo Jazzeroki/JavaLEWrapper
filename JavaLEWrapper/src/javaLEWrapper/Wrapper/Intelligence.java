@@ -3,7 +3,11 @@ package javaLEWrapper.Wrapper;
 import java.io.IOException;
 
 public class Intelligence extends Buildings {
-	String url = "intelligence";
+	Intelligence(String buildingName) {
+		super(buildingName); //may need to input intelligence
+		// TODO Auto-generated constructor stub
+	}
+	//String url = "intelligence";
 	String View(int requestID, String sessionID, String buildingID){
 		String i = null;
 		StartOfObject(requestID, "view");

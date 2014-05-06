@@ -12,8 +12,33 @@ public class LESuperClass {
 	protected StringWriter w = new StringWriter();
 	protected JsonWriter writer = new JsonWriter(w);
 	
+	protected String BasicRequest(String method, String sessionID, String id){
+		String b = "0";
+		try{
+			writer.beginObject();
+			writer.name("jsonrpc").value(2);
+			writer.name("id").value(1);
+			writer.name("method").value(method);
+			writer.name("params").beginArray();
+			writer.value(sessionID);
+			writer.value(id);
+			writer.endArray();
+			writer.endObject();
+			writer.close();
+			b = gson.toJson(writer);
+			//writer.flush();
+			b = CleanJsonObject(b);
+		}catch(IOException e){
+			System.out.println("ioexception");
+		}catch(NullPointerException e){
+			System.out.println("null pointer exception");
+		}finally{
+		}
+		return b;
+	}
 	//A method to be used by all other LE Wrapper classes to create the first portion of requests
 	protected void StartOfObject(int requestID, String Method){
+		//System.out.println("starting writer");
 		//JsonWriter writer = new JsonWriter();
 		try{
 			//writer = new JsonWriter(null);
@@ -26,6 +51,7 @@ public class LESuperClass {
 			//System.out.println(u);
 		}catch(IOException e){
 			e.printStackTrace();
+			System.out.println("IO Exception in start object");
 		}
 			
 	}

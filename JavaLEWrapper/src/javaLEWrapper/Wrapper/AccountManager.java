@@ -8,6 +8,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.FileReader;
+import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -15,22 +16,21 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
 public class AccountManager {
-	private Gson gson = new Gson();
-	private StringWriter w = new StringWriter();
-	private JsonWriter writer = new JsonWriter(w);
+	//private Gson gson = new Gson();
+	//private StringWriter w = new StringWriter();
+	//private JsonWriter writer = new JsonWriter(w);
 	
 	void Menu(){}
 	void CreateAccount(){
 		Scanner input = new Scanner(System.in);
 		String apiKey = "";
-		//System.out.println("Select Server \n 1, US1\n 2, PT");
 		String server = null;
 		int control = 0;
         int i = 1;
         //do{
         	do {
               try {
-            	  System.out.println("Select Server \n 1, US1\n 2, PT");
+            	  System.out.println("Select Server \n 1, US1\n 2, PT \n 3, ICD");
             	  control = input.nextInt();
               	switch(control){
             	case 1:
@@ -39,6 +39,10 @@ public class AccountManager {
             		break;
             	case 2:
             		server = "https://pt.lacunaexpanse.com";
+            		i = 0;
+            		break;
+            	case 3:
+            		server = "http://lacuna.icydee.com";
             		i = 0;
             		break;
             	default:
@@ -51,20 +55,20 @@ public class AccountManager {
               		i = 1;
               }
         	} while (i == 1);
-        		
-       // } while (control != 0);
-		
+        				
 		System.out.println("Enter Username");
 		String userName = input.next();
 		System.out.println("Enter Password");
 		String password = input.next();
 		
 		SaveToFile(userName, password, apiKey, server);
-		
 		input.close();
 	}
 //	void LoadFromFile(){}
 	void SaveToFile(String userName, String password, String apiKey, String server){
+		Gson g = new Gson();
+		//private StringWriter w = new StringWriter();
+		//private JsonWriter writer = new JsonWriter(w);
 		try {
 			AccountInfo account = new AccountInfo();
 			account.userName = userName;
@@ -72,7 +76,7 @@ public class AccountManager {
 			account.APIKey = apiKey;
 			account.Server = server;
 			
-			String i = gson.toJson(account);
+			String i = g.toJson(account);
 			PrintWriter w = new PrintWriter("Account.Jazz","UTF-8");
 			w.println(i);
 			w.close();
@@ -116,7 +120,9 @@ public class AccountManager {
 		return i;
 		}
 	}
-
+class Accounts{
+	ArrayList<AccountInfo> accounts;
+}
 class AccountInfo{
 	String userName, Password, APIKey, Server;
 }

@@ -2,6 +2,8 @@ package javaLEWrapper.Wrapper;
 import com.google.gson.Gson;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.InputMismatchException;
 //import java.util.Map;
@@ -11,12 +13,20 @@ import java.util.Set;
 //import java.io.Console;
 import java.net.URL;
 import java.awt.Desktop;
+import java.awt.List;
 
 import javaLEWrapper.Wrapper.Response.Messages;
 import javaLEWrapper.Wrapper.Response.Result;
 
 
-public class main {
+public class JavaLEWrapper {
+	/*class Names implements Comparable<Names> {
+		String id, name;
+		@Override
+		public int compareTo(Names n){
+			return name.compareTo(n.name);
+		}
+	} */
 	static String version = "Alpha 0.01";
 	static String sessionID = null;
 	static String gameServer = null;
@@ -26,6 +36,9 @@ public class main {
 	static HashMap <String, String> planetList = new HashMap <String, String>() ;
 	static HashMap <String, Response.Result> stations = new HashMap<>();
 	static HashMap <String, Response.Result> planets = new HashMap<>();
+	
+	static ArrayList <String> planetNames = new ArrayList<String>(); //For storing a sorted collection of planet names
+	static ArrayList <String> stationNames = new ArrayList<String>(); //For storing a sorted collection of station names
     
 	public static void main(String[] args) {
     	GetSession();
@@ -132,6 +145,7 @@ public class main {
     	Empire e = new Empire();
     	i = e.Login(account.userName, account.Password, 1);
     	i = server.ServerRequest(gameServer, e.url, i);
+    	System.out.println(i);
     	Response r = gson.fromJson(i, Response.class);
     	
     	//setting values for empire details
@@ -256,26 +270,12 @@ public class main {
     }
     static int FindBuildingID(String buildingName, HashMap<Integer, Response.Building> buildings){
     	int i = 0;
-    	if(buildings.containsValue(buildingName)){
-    		System.out.println("found "+ buildingName);
-    		Set<Integer> buildingkeys = buildings.keySet();
-    		String name ="";
-    		for(int j: buildingkeys){
-        		name = buildings.get(j).name;
-        		//System.out.println(buildings.get(j).name+" "+j);
-        		if(name.equals(buildingName)){	
-        			//buildingID = Integer.toString(j);
-        			System.out.println(j);
-        			i = j;
-        			return i;
-        		}
-    		}
-    	}
-    	else{
-    		
-    	}
-    	
-    	
+    	String name ="";
+    	Set<Integer> buildingkeys = buildings.keySet();
+    	for(int j: buildingkeys){
+    		if(buildings.get(j).name.equals(buildingName))
+    			return j;
+    	} 	
     	return i;
     }
     
@@ -291,22 +291,21 @@ public class main {
     		Response r = gson.fromJson(reply, Response.class);
     		if (r.result.body.surface_image.equals("surface-station")) { 
     			stations.put(j, r.result);
-    			System.out.println(r.result.status.body.name);
-    			//System.out.println(r.result.session_id);
-    			//System.out.println(r.result.buildings);
+    			stationNames.add(r.result.status.body.name);
     		}
     		else{
     			planets.put(j, r.result);
-    			System.out.println(r.result.status.body.name);
-    			//System.out.println(r.result.session_id);
-    			//System.out.println(r.result.buildings);
+    			planetNames.add(r.result.status.body.name);
     		}
-    		System.out.println(j);
-    		endloop++;
+    		
+    		//System.out.println(j);
+    		endloop++;  //remove this when done testing
     		if (endloop == 10)
     			break;
     	}
     	}
+    	Collections.sort(planetNames);
+    	Collections.sort(stationNames);
     }//seperates planets from stations and retrieves their building info
     static void PlanetStatusCheck(){
     	//for(String r : planets)
@@ -379,46 +378,165 @@ public class main {
     //Planetary Controls
     static void PrintPlanetControlsMenu(){
     	System.out.println("1: Perform Status Check.  This will sort bodies from SS if it's the first time it's run");
+    	System.out.println("2: Individual Planet Menu");
+    	System.out.println("3: Empire Wide Options");
     	System.out.println("0: To return to the main menu");
     }
     static void PlanetControlsMenu(){
     	int i = 0;
     	int control = 0;
     	Scanner input = new Scanner(System.in);
+    	
     	do{
+    		//PrintPlanetControlsMenu();
+    		if(planets.isEmpty()){
+    			System.out.println("Getting planets and Stations, this may take a few minutes");
+    			SeperateSSandPlanets();
+    		}
     		PrintPlanetControlsMenu();
     		try{
     			control = input.nextInt();
     			switch(control){
     			case 1:
-    				SeperateSSandPlanets();
+    				//SeperateSSandPlanets();
     				PlanetStatusCheck();
+    				break;
+    			case 2:
+    				IndividualPlanetsMenu();
     				break;
     			case 0:
     				MainMenu();
     				break;
     			default:
     				System.out.println("Invalid Selection");
-    				MessageBoxMenu();
+    				PrintPlanetControlsMenu();
     			}
     				
     			
     		}catch(InputMismatchException e){
     			System.out.println("Not a valid selection.");
-    			
     		}
     		
     	}while(i==0);
     	input.close();
     }
-    static void PrintPlanetList(){}
+    static void PrintPlanetsListMenu(){
+    	//Collections.sort(planetList);
+    	Set<String> id = planetList.keySet();
+    	int i = 0;
+    	System.out.println("Select the number of the planet");
+    	for(String name: planetNames){
+    		System.out.println(++i +": "+name);
+    	}
+    	System.out.println("Select 0 to return to the main menu");
+    }
+    static void IndividualPlanetsMenu(){
+    	int control;
+    	int i = 0;
+    	Scanner input = new Scanner(System.in);
+    	do{
+    		try{
+    		PrintPlanetsListMenu();
+    		control = input.nextInt();
+    		if(control == 0)
+    			i = 1;
+    		if(control > planetNames.size())
+    			System.out.println("Invalid Selection.");
+    		else{
+    			IndividualPlanetOptionsMenu(GetPlanetID(planetNames.get(control -1)));
+    		//String planetID = GetPlanetID(planetNames.get(control -1));
+    		
+    		//System.out.println("control = "+control);
+    		//System.out.println(planetID);
+    		}
+    		}catch(InputMismatchException e){
+    			System.out.println("Invalid selection.");
+    		}
+    	}while (i == 0);
+    	input.close();
+    }
+    static String GetPlanetID(String name){
+    	String id = "";
+    	Set<String> ids = planetList.keySet();
+    	for (String i: ids){
+    		if(planetList.get(i).equals(name)){
+    			System.out.println(planetList.get(i) );
+    			return id = i;
+    		}
+    	}
+    	return id = "0";
+    }
+    static void PrintIndividualPlanetOptionsMenu(){
+    	System.out.println("1: Repair All Buildings");
+    	System.out.println("2: Build 50 Snark3");
+    	System.out.println("0: Return to Planets Menu");
+    }
+    static void IndividualPlanetOptionsMenu(String PlanetID){
+    	int i = 0;
+    	int control = 0;
+    	Scanner input = new Scanner(System.in);
+    	do{
+    		PrintIndividualPlanetOptionsMenu();
+    		try{
+    			control = input.nextInt();
+    			switch(control){
+    			case 1:
+    				RepairAllPlanetBuildings(PlanetID);
+    				break;
+    			case 2:
+    				//Shipyard
+    				int bID = FindBuildingID("Shipyard", planets.get(PlanetID).buildings);
+    				System.out.println(bID);
+    				Shipyard shipyard = new Shipyard();
+    				String request = shipyard.BuildShip(sessionID, String.valueOf(bID), "snark3", 50);
+    				System.out.println(request);
+    				System.out.println(shipyard.url);
+    				String reply = server.ServerRequest(gameServer, shipyard.url, request);
+    				System.out.println(reply);
+    				break;
+    			case 3:
+    				//Spaceports
+    			case 4:
+    				//Intelministry
+    			case 5:
+    				//Trade
+    			case 6:
+    				PrintAllBuildingsOnPlanet(PlanetID);
+    			case 0:
+    				i = 1;
+    				break;
+    			default:
+    				System.out.println("Invalid Selection");
+    			}
+	
+    		}catch(InputMismatchException e){
+    			System.out.println("Not a valid selection.");    			
+    		}    		
+    	}while(i==0);
+    	input.close();
+    }
     
-   
+    static void PrintAllBuildingsOnPlanet(String planetIDNumber){
+    	HashMap<Integer, Response.Building> buildings = planets.get(planetIDNumber).buildings;
+    	Set<Integer> buildingkeys = buildings.keySet();
+    	Response.Building b;
+    	String bnumber;
+    	//int buildingsRepaired = 0;
+    	for(Integer j: buildingkeys){
+    		bnumber = String.valueOf(j);
+    		b = buildings.get(j);
+    		System.out.println(b.name);
+    	}
+    }
     static void RepairBuilding(String buildingID, String buildingName){
-    	//buildingName is used in place of the url as all buildings inherit repair from building but use their own names for their urls
-    	Buildings building = new Buildings();
-		String request = building.Repair(sessionID, buildingID);
-		String reply = server.ServerRequest(gameServer, buildingName, request);
+    	buildingName.toLowerCase();
+    	buildingName.replace(" ", "");
+    	//String y = buildingName.toLowerCase();
+    	//y = y.replace(" ", "");
+    	//System.out.println(buildingName);
+		Buildings b = new Buildings(buildingName);
+		String request = b.Repair(sessionID, buildingID);
+		String reply = server.ServerRequest(gameServer, b.url, request);
 		Response r = gson.fromJson(reply, Response.class);
     }
     static void RepairAllPlanetBuildings(String planetIDNumber){
@@ -428,14 +546,17 @@ public class main {
     	Set<Integer> buildingkeys = buildings.keySet();
     	Response.Building b;
     	String bnumber;
+    	int buildingsRepaired = 0;
     	for(Integer j: buildingkeys){
     		bnumber = String.valueOf(j);
     		b = buildings.get(j);
     		if(Integer.parseInt(b.efficiency)<100){
     			System.out.println("Repairing Building: "+b.name);
     			RepairBuilding(bnumber,b.name );
+    			buildingsRepaired++;
     		}
     	}
+    	System.out.println(buildingsRepaired + " buildings repaired");
     }
     //static void RepairAllBuildings(){}
     //static void RepairGlyphBuildings(){}
