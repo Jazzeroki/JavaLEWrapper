@@ -8,17 +8,41 @@ public class Intelligence extends Buildings {
 		// TODO Auto-generated constructor stub
 	}
 	//String url = "intelligence";
-	String View(int requestID, String sessionID, String buildingID){
-		String i = null;
-		StartOfObject(requestID, "view");
-		i = SessionAndBuildingIDRequests(sessionID, buildingID);
+	String View(String sessionID, String buildingID){
+		StartOfObject(1, "view");
+		String i = SessionAndBuildingIDRequests(sessionID, buildingID);
 		return i;
 	}
-	String ViewAllSpies(int requestID, String sessionID, String buildingID){
-		String i = null;
-		StartOfObject(requestID, "view_all_spies");
-		i = SessionAndBuildingIDRequests(sessionID, buildingID);
+	String ViewAllSpies(String sessionID, String buildingID){
+		StartOfObject(1, "view_all_spies");
+		String i = SessionAndBuildingIDRequests(sessionID, buildingID);
 		return i;
+	}
+	String AssignSpy(String sessionID, String buildingID, String spyID, String assignment ){
+		String b = "0";
+		try{
+			writer.beginObject();
+			writer.name("jsonrpc").value(2);
+			writer.name("id").value(1);
+			writer.name("method").value("assign_spy");
+			writer.name("params").beginArray();
+			writer.value(sessionID);
+			writer.value(buildingID);
+			writer.value(spyID);
+			writer.value(assignment);
+			writer.endArray();
+			writer.endObject();
+			writer.close();
+			b = gson.toJson(writer);
+			//writer.flush();
+			b = CleanJsonObject(b);
+		}catch(IOException e){
+			System.out.println("ioexception");
+		}catch(NullPointerException e){
+			System.out.println("null pointer exception");
+		}finally{
+		}
+		return b;
 	}
 	/*Intelligence Methods
 view ( session_id, building_id )

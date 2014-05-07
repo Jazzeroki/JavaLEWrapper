@@ -9,7 +9,10 @@ public class Response {
     
     //Inner Class Definitions
     class Result{
-        String session_id, url, guid, number_of_ships_building, cost_to_subsidize;
+        String session_id, url, guid, number_of_ships_building, cost_to_subsidize, spy_count;
+        DockedShips docked_ships;
+        ArrayList <Spies> spies;
+        ArrayList <String> possible_assignments;
         ArrayList <ShipsBuilding> ships_building;
         Status status;
         Error error;
@@ -17,6 +20,21 @@ public class Response {
         HashMap<Integer, Building>buildings;
         Messages messages[];//used when previewing multiple messages
         Messages message; //used when reading a single message
+    }
+    class DockedShips{
+    	String excavator, observatory_seeker, spaceport_seeker, snark3, snark2, snark, short_range_colony_ship, sweeper, fighter, scow, scow_mega, probe, hulk, hulk_fast;
+    }
+    class Spies{
+    	String started_assignment, defense_rating, id, available_on, intel, offense_rating, politics, assignment, name, level, is_available, mayhem, seconds_remaining, theft;
+    	ArrayList <PossibleAssignments> possible_assignments;
+    	AssignedTo assigned_to;
+    	AssignedTo based_from;
+    	class AssignedTo{ //can also be used for based from
+    		String y, x, body_id, name;
+    	}
+    	class PossibleAssignments{
+    		String skill, recovery, task;
+    	}
     }
     class Work{
     	String start, end, seconds_remaining;

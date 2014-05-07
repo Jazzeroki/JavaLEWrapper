@@ -1,6 +1,16 @@
 package javaLEWrapper.Wrapper;
 
-public class Spaceport {
+public class Spaceport extends Buildings {
+
+	Spaceport(String buildingName) {
+		super("spaceport");
+		// TODO Auto-generated constructor stub
+	}
+	String ViewAllShips(String sessionID, String buildingID){
+		StartOfObject(1, "view_all_ships");
+		String i = SessionAndBuildingIDRequests(sessionID, buildingID);
+		return i;
+	}
 
 }
 /*

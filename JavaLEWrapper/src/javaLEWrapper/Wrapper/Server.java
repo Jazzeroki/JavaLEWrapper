@@ -17,6 +17,7 @@ public class Server {
         	} catch(InterruptedException ex) {
         	    Thread.currentThread().interrupt();
         	}
+        	System.out.println("url "+gameServer+"/" + methodURL);
             URL url = new URL(gameServer+"/" + methodURL);
             URLConnection connection = url.openConnection();
             connection.setDoOutput(true);
@@ -25,6 +26,7 @@ public class Server {
             out.close();
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             output = in.readLine();
+            System.out.println(output+" before checking for captcha");
             
             //adding captcha support
             Gson gson = new Gson();
@@ -34,6 +36,7 @@ public class Server {
             	String request = c.Fetch(sessionID);
             	
             	output = ServerRequest(gameServer, methodURL, request);
+            	System.out.println(output);
             	r = gson.fromJson(output, Response.class);
             	
             	Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
@@ -77,6 +80,7 @@ public class Server {
         	} catch(InterruptedException ex) {
         	    Thread.currentThread().interrupt();
         	}
+        	System.out.println((gameServer+"/" + methodURL));
             URL url = new URL(gameServer+"/" + methodURL);
             URLConnection connection = url.openConnection();
             connection.setDoOutput(true);

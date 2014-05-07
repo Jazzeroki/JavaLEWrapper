@@ -110,11 +110,14 @@ public class Buildings extends LESuperClass {
 	void Build(String bodyID, String x, String y){
 		
 	}
-	
+	String View(String sessionID, String buildingID){
+		StartOfObject(1, "view");
+		String i = SessionAndBuildingIDRequests(sessionID, buildingID);
+		return i;
+	}
 	String Upgrade(String sessionID, String buildingID){
-		String i = null;
 		StartOfObject(1, "upgrade");
-		i = SessionAndBuildingIDRequests(sessionID, buildingID);
+		String i = SessionAndBuildingIDRequests(sessionID, buildingID);
 		return i;
 	}
 	String Demolish(String sessionID, String buildingID){

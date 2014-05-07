@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.InputMismatchException;
 //import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 import java.util.Set;
 //import java.io.Console;
@@ -17,6 +18,8 @@ import java.awt.List;
 
 import javaLEWrapper.Wrapper.Response.Messages;
 import javaLEWrapper.Wrapper.Response.Result;
+import javaLEWrapper.Wrapper.Response.Spies;
+import javaLEWrapper.Wrapper.Response.Spies.PossibleAssignments;
 
 
 public class JavaLEWrapper {
@@ -33,6 +36,7 @@ public class JavaLEWrapper {
 	static Gson gson = new Gson();
 	static Server server = new Server();	
 	static int newMessages;
+	static boolean captchaValid = false;
 	static HashMap <String, String> planetList = new HashMap <String, String>() ;
 	static HashMap <String, Response.Result> stations = new HashMap<>();
 	static HashMap <String, Response.Result> planets = new HashMap<>();
@@ -41,90 +45,8 @@ public class JavaLEWrapper {
 	static ArrayList <String> stationNames = new ArrayList<String>(); //For storing a sorted collection of station names
     
 	public static void main(String[] args) {
-    	GetSession();
-    	MainMenu();
-    	//System.out.println(sessionID);
-    	//Gson gson = new Gson();
-    	//System.out.println("Jazz Command Console");
-    	//Empire empire = new Empire();
-    	//Server server = new Server();
-    	//AccountManager a = new AccountManager();
-    	//a.CreateAccount();
-    	//String acc = a.ReadFromFile();
-    	//System.out.println(acc);
-    	//String l = empire.Login("", "", 1);
-    	//System.out.println("Login Request"+l);
-    	//l = server.ServerRequest("https://us1.lacunaexpanse.com", "empire", l);
-    	//System.out.println("Login Response"+l);
-    	/*
-    	Response response;
-    	//response = gson.fromJson(l, Response.class);
-    	String BodyID = response.result.status.empire.home_planet_id;
-    	String SessionID = response.result.session_id;
-    	Body body = new Body();
-    	l = body.GetBuildings(1, SessionID, BodyID);
-    	//System.out.println(l);
-    	l = server.ServerRequest("https://us1.lacunaexpanse.com", "body", l);
-    	System.out.println(l);
-    	response = gson.fromJson(l, Response.class);
-    	
-    	
-    	
-    	System.out.println(response.result.status.empire.planets.get(BodyID));
-    	System.out.println(response.result.status.empire.planets.values());
-    	System.out.println(response.result.status.empire.planets.keySet());
-    	Set<Integer> buildingkeys = response.result.buildings.keySet();
-    	//int buildingID = 0;
-    	String buildingID = null;
-    	String intelmin = "Intelligence Ministry";
-    	for(int j: buildingkeys){
-    		String name = response.result.buildings.get(j).name;
-    		System.out.println(response.result.buildings.get(j).name+" "+j);
-    		if(name.equals(intelmin)){
-    			buildingID = Integer.toString(j);
-    			System.out.println(buildingID);
-    		}
-    	}
-    	if(response.result.buildings.containsValue(intelmin))
-    		System.out.println("found ministry");
-    	System.out.println(buildingID);
-    	Intelligence intel = new Intelligence();
-    	*/
-    	/*
-    	l = intel.View(1, SessionID, buildingID);
-    	System.out.println("Request: view "+l);
-    	l = server.ServerRequest("https://us1.lacunaexpanse.com", intel.url, l);
-    	System.out.println("Response from server View "+l);
-    	*/
-    	//l = intel.ViewAllSpies(1, SessionID, buildingID);
-    	//System.out.println("Request: View All Spies "+l);
-    	//l = server.ServerRequest("https://us1.lacunaexpanse.com", intel.url, l);
-    	//System.out.println("Response from Server View All Spies "+l);
-    	
-    	//AccountManager account = new AccountManager();
-    	//System.out.println(buildingkeys.)
-    	
-    	//response.result.buildings.
-    	//System.out.println(response.result.body.surface_image);
-    	/*boolean j = false;
-    	do{
-    		
-    	}while(j!=true);*/
-    	
-    	//code for testing intel ministry
-    	//Intelligence intel = new Intelligence();
-    	//l = intel.View(1, sessionID, buildingID)
-    	
-    	//Code for testing Inbox
-    	/*Inbox inbox = new Inbox();
-    	Inbox.MessageTags tag = null;
-    	tag = tag.Correspondence;
-    	l = inbox.ViewInbox(1, SessionID, tag);
-    	System.out.println("Inbox request"+l);
-    	l = server.ServerRequest("https://us1.lacunaexpanse.com", "inbox", l);
-    	System.out.println("Inbox Response"+l);*/
-    	
-    	
+		GetSession();
+		MainMenu();
     }
     
     //Main Controls
@@ -166,6 +88,7 @@ public class JavaLEWrapper {
     	System.out.println("6, Experiments");
     }
     static void MainMenu(){
+    	//Captcha();
     	int i = 0;
     	int control = 0;
     	Scanner input = new Scanner(System.in);
@@ -242,6 +165,8 @@ public class JavaLEWrapper {
 		String reply = server.ServerRequest(gameServer, c.url, request);
 		System.out.println(reply);
 		Response r = gson.fromJson(reply, Response.class);
+		System.out.println("Please wait a moment while the captcha is loaded in a browser window");
+		System.out.println("After the captcha has appeared enter the answer and push enter");
 		//Console console = System.console();
 		
 		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
@@ -262,9 +187,15 @@ public class JavaLEWrapper {
 	    //String solution = console.readLine("Enter Answer ");
 	    Captcha d = new Captcha();
 	    request = d.Solve(sessionID, r.result.guid, solution);
-	    System.out.println(request);
+	    //System.out.println(request);
 	    reply = server.ServerRequest(gameServer, d.url, request);
+	    System.out.println("note what the reply here looks like to see the indicator that the captcha worked so the if statment can be written");
 	    System.out.println(reply);
+	    
+	    captchaValid = true;
+	    //r = gson.fromJson(reply, Response.class);
+	    //if(r.result.)
+	    //System.out.println(reply);
 	    //if r.result is equal to 1 the captcha worked
 	    
     }
@@ -312,7 +243,7 @@ public class JavaLEWrapper {
     		
     		//System.out.println(j);
     		endloop++;  //remove this when done testing
-    		if (endloop == 10)
+    		if (endloop == 3)
     			break;
     	}
     	}
@@ -480,10 +411,13 @@ public class JavaLEWrapper {
     }
     static void PrintIndividualPlanetOptionsMenu(){
     	System.out.println("1: Repair All Buildings");
-    	System.out.println("2: Build 50 Snark3");
+    	System.out.println("2: Fill all shipyards with ships of a selected type");
+    	System.out.println("3: Spaceport");
+    	System.out.println("4: Spies");
+    	System.out.println("6: Print all buildings on planet");
     	System.out.println("0: Return to Planets Menu");
     }
-    static void IndividualPlanetOptionsMenu(String PlanetID){
+    static void IndividualPlanetOptionsMenu(String planetID){
     	int i = 0;
     	int control = 0;
     	Scanner input = new Scanner(System.in);
@@ -493,42 +427,49 @@ public class JavaLEWrapper {
     			control = input.nextInt();
     			switch(control){
     			case 1:
-    				RepairAllPlanetBuildings(PlanetID);
+    				RepairAllPlanetBuildings(planetID);
     				break;
     			case 2:
-    				//Shipyard
-    				/*int bID = FindBuildingID("Shipyard", planets.get(PlanetID).buildings);
-    				System.out.println(bID);
-    				Shipyard shipyard = new Shipyard();
-    				String request = shipyard.BuildShip(sessionID, String.valueOf(bID), "snark3", 50);
-    				System.out.println(request);
-    				System.out.println(shipyard.url);
-    				String reply = server.ServerRequest(gameServer, shipyard.url, request);
-    				System.out.println(reply);*/
+    				MenuFillShipyardsWith(planetID);
     				break;
     			case 3:
     				//Spaceports
+    				ViewShips(planetID);
+    				break;
     			case 4:
     				//Intelministry
+    				ArrayList <Spies> spies =  GetSpies(planetID);
+    				AssignAllSpies(spies, planetID, "Counter Espionage");
+    				break;
     			case 5:
     				//Trade
     			case 6:
-    				PrintAllBuildingsOnPlanet(PlanetID);
+    				PrintAllBuildingsOnPlanet(planetID);
+    				break;
     			case 0:
     				i = 1;
     				break;
     			default:
     				System.out.println("Invalid Selection");
     			}
-	
     		}catch(InputMismatchException e){
     			System.out.println("Not a valid selection.");    			
-    		}    		
+    		}catch(NoSuchElementException e) {
+    			System.out.println("No Such Element Exception, contro ="+control);
+    		}
     	}while(i==0);
-    	input.close();
-    	
+    	input.close();	
     }
-    
+//Spaceport methods
+    static void ViewShips(String planetID){
+    	int bID = FindBuildingID("Space Port", planets.get(planetID).buildings);
+    	Spaceport spaceport = new Spaceport("spaceport");
+    	String request = spaceport.View(sessionID, String.valueOf(bID));//spaceport.ViewAllShips(sessionID, String.valueOf(bID));
+    	System.out.println(request);
+    	System.out.println(spaceport.url);
+    	String reply = server.ServerRequest(gameServer, spaceport.url, request);
+    	System.out.println(reply);
+    }
 //Shipyard methods
     static void MenuFillShipyardsWith(String planetID){
     	int i = 0;
@@ -686,8 +627,25 @@ public class JavaLEWrapper {
     //static void RepairGlyphBuildings(){}
  
     //Intelligence Methods
-    static void GetSpies(String planetID){
-    	
+    static ArrayList<Spies> GetSpies(String planetID){
+    	int bID = FindBuildingID("Intelligence Ministry", planets.get(planetID).buildings);
+    	Intelligence intel = new Intelligence("intelligence");
+    	String request = intel.ViewAllSpies(sessionID, String.valueOf(bID));
+    	String reply = server.ServerRequest(gameServer, intel.url, request);
+    	Response r = gson.fromJson(reply, Response.class);
+    	return r.result.spies;
+    }
+    static void AssignAllSpies(ArrayList <Spies> spies, String planetID, String assignment){
+    	if(captchaValid==false)
+    		Captcha();
+    	int bID = FindBuildingID("Intelligence Ministry", planets.get(planetID).buildings);
+    	String request, reply;
+    	for(Spies s: spies){
+    		Intelligence intel = new Intelligence("intelligence");
+    		request = intel.AssignSpy(sessionID, String.valueOf(bID), s.id, assignment);
+    		reply = server.ServerRequest(gameServer, intel.url, request);
+    		
+    	}
     }
     static void SendSpies(){
     	
