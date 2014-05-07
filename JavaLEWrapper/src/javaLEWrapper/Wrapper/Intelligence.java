@@ -13,6 +13,11 @@ public class Intelligence extends Buildings {
 		String i = SessionAndBuildingIDRequests(sessionID, buildingID);
 		return i;
 	}
+	String SubsidizeTraining(String sessionID, String buildingID){
+		StartOfObject(1, "subsidize_training");
+		String i = SessionAndBuildingIDRequests(sessionID, buildingID);
+		return i;
+	}
 	String ViewAllSpies(String sessionID, String buildingID){
 		StartOfObject(1, "view_all_spies");
 		String i = SessionAndBuildingIDRequests(sessionID, buildingID);
@@ -30,6 +35,82 @@ public class Intelligence extends Buildings {
 			writer.value(buildingID);
 			writer.value(spyID);
 			writer.value(assignment);
+			writer.endArray();
+			writer.endObject();
+			writer.close();
+			b = gson.toJson(writer);
+			//writer.flush();
+			b = CleanJsonObject(b);
+		}catch(IOException e){
+			System.out.println("ioexception");
+		}catch(NullPointerException e){
+			System.out.println("null pointer exception");
+		}finally{
+		}
+		return b;
+	}
+	String NameSpy(String sessionID, String buildingID, String spyID, String name){
+		String b = "0";
+		try{
+			writer.beginObject();
+			writer.name("jsonrpc").value(2);
+			writer.name("id").value(1);
+			writer.name("method").value("name_spy");
+			writer.name("params").beginArray();
+			writer.value(sessionID);
+			writer.value(buildingID);
+			writer.value(spyID);
+			writer.value(name);
+			writer.endArray();
+			writer.endObject();
+			writer.close();
+			b = gson.toJson(writer);
+			//writer.flush();
+			b = CleanJsonObject(b);
+		}catch(IOException e){
+			System.out.println("ioexception");
+		}catch(NullPointerException e){
+			System.out.println("null pointer exception");
+		}finally{
+		}
+		return b;
+	}
+	String BurnSpy(String sessionID, String buildingID, String spyID){
+		String b = "0";
+		try{
+			writer.beginObject();
+			writer.name("jsonrpc").value(2);
+			writer.name("id").value(1);
+			writer.name("method").value("burn_spy");
+			writer.name("params").beginArray();
+			writer.value(sessionID);
+			writer.value(buildingID);
+			writer.value(spyID);
+			writer.endArray();
+			writer.endObject();
+			writer.close();
+			b = gson.toJson(writer);
+			//writer.flush();
+			b = CleanJsonObject(b);
+		}catch(IOException e){
+			System.out.println("ioexception");
+		}catch(NullPointerException e){
+			System.out.println("null pointer exception");
+		}finally{
+		}
+		return b;
+	}
+	String TrainSpy(String sessionID, String buildingID, String quantity){
+		String b = "0";
+		try{
+			writer.beginObject();
+			writer.name("jsonrpc").value(2);
+			writer.name("id").value(1);
+			writer.name("method").value("train_spy");
+			writer.name("params").beginArray();
+			writer.value(sessionID);
+			writer.value(buildingID);
+			writer.value(quantity);
 			writer.endArray();
 			writer.endObject();
 			writer.close();

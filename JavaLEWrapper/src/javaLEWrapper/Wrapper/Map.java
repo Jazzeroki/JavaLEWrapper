@@ -1,6 +1,7 @@
 package javaLEWrapper.Wrapper;
 
-public class Map {
+public class Map extends LESuperClass {
+	String url = "map";
 
 }
 /*
