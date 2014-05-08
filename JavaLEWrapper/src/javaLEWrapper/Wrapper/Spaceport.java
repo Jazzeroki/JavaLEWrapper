@@ -43,7 +43,15 @@ public class Spaceport extends Buildings {
 		return i;
 	}
 	String ViewBattleLogs(String sessionID, String buildingID, String pageNumber){
-		String i = ThreePartRequest("prepare_fetch_spies", sessionID, buildingID, pageNumber);
+		String i = ThreePartRequest("view_battle_logs", sessionID, buildingID, pageNumber);
+		return i;
+	}
+	String NameShip(String sessionID, String buildingID, String shipID, String name){
+		String i = FourPartRequest("name_ship", sessionID, buildingID, shipID, name);
+		return i;
+	}
+	String ScuttleShip(String sessionID, String buildingID, String shipID, String name){
+		String i = FourPartRequest("scuttle_ship", sessionID, buildingID, shipID, name);
 		return i;
 	}
 }
@@ -52,8 +60,6 @@ public class Spaceport extends Buildings {
 view_all_ships ( session_id, building_id, [ paging, filter, sort ] )
 send_ship_types ( session_id, from_body_id, target, types, arrival )
 send_fleet ( session_id, ship_ids, target, [ set_speed ] )
-name_ship ( session_id, building_id, ship_id, name )
-scuttle_ship ( session_id, building_id, ship_id )
 mass_scuttle_ship ( session_id, building_id, ship_ids )
 view_ships_travelling ( session_id, building_id, [ page_number ])
 view_ships_orbiting ( session_id, building_id, [ page_number ])
