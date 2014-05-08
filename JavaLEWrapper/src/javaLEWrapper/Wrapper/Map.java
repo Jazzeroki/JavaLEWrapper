@@ -51,11 +51,35 @@ public class Map extends LESuperClass {
 		}
 		return b;
 	}
+	String GetStarsByXY(String sessionID, String x1, String y1){
+		String b = "0";
+		try{
+			writer.beginObject();
+			writer.name("jsonrpc").value(2);
+			writer.name("id").value(1);
+			writer.name("method").value("get_stars_by_xy");
+			writer.name("params").beginArray();
+			writer.value(sessionID);
+			writer.value(x1);
+			writer.value(y1);
+			writer.endArray();
+			writer.endObject();
+			writer.close();
+			b = gson.toJson(writer);
+			//writer.flush();
+			b = CleanJsonObject(b);
+		}catch(IOException e){
+			System.out.println("ioexception");
+		}catch(NullPointerException e){
+			System.out.println("null pointer exception");
+		}finally{
+		}
+		return b;
+	}
+	
 }
 /*
 get_star_map(hash)
-get_stars ( session_id, x1, y1, x2, y2 )
-get_star_by_xy (session_id, x, y)
 probe_summary_fissures(session_id, zone(optional))
 
 
