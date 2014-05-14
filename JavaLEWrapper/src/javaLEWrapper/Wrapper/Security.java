@@ -6,25 +6,21 @@ public class Security extends Buildings {
 		super("security");
 		// TODO Auto-generated constructor stub
 	}
+	String ViewPrisoners(String sessionID, String buildingID, String pageNumber){
+		String i = Request("view_prisoners", sessionID, buildingID, pageNumber);
+		return i;
+	}
+	String ExecutePrisoner(String sessionID, String buildingID, String prisonerID){
+		String i = Request("execute_prisoner", sessionID, buildingID, prisonerID);
+		return i;
+	}
+	String ReleasePrisoner(String sessionID, String buildingID, String prisonerID){
+		String i = Request("release_prisoner", sessionID, buildingID, prisonerID);
+		return i;
+	}
+	String ViewForeignSpies(String sessionID, String buildingID, String pageNumber){
+		String i = Request("view_foreign_spies", sessionID, buildingID, pageNumber);
+		return i;
+	}
 
 }
-/*
-Security Methods
-view_prisoners ( session_id, building_id, [ page_number ])
-session_id
-building_id
-page_number
-execute_prisoner ( session_id, building_id, prisoner_id )
-session_id
-building_id
-prisoner_id
-release_prisoner ( session_id, building_id, prisoner_id )
-session_id
-building_id
-prisoner_id
-view_foreign_spies ( session_id, building_id, [ page_number ])
-session_id
-building_id
-page_number
-
-*/

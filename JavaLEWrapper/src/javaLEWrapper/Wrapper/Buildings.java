@@ -107,8 +107,8 @@ public class Buildings extends LESuperClass {
     	Wheat
     	*/
 	}
-	void Build(String bodyID, String x, String y){
-		
+	String Build(String sessionID, String bodyID, String x, String y){
+		return Request("build",sessionID, bodyID, x, y);
 	}
 	String View(String sessionID, String buildingID){
 		StartOfObject(1, "view");

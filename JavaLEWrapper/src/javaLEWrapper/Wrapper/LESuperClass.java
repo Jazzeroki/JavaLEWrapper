@@ -12,6 +12,82 @@ public class LESuperClass {
 	protected StringWriter w = new StringWriter();
 	protected JsonWriter writer = new JsonWriter(w);
 	
+	protected String Request(String method, String sessionID, String id){
+		String b = "0";
+		try{
+			writer.beginObject();
+			writer.name("jsonrpc").value(2);
+			writer.name("id").value(1);
+			writer.name("method").value(method);
+			writer.name("params").beginArray();
+			writer.value(sessionID);
+			writer.value(id);
+			writer.endArray();
+			writer.endObject();
+			writer.close();
+			b = gson.toJson(writer);
+			//writer.flush();
+			b = CleanJsonObject(b);
+		}catch(IOException e){
+			System.out.println("ioexception");
+		}catch(NullPointerException e){
+			System.out.println("null pointer exception");
+		}finally{
+		}
+		return b;
+	}
+	protected String Request(String method, String sessionID, String id, String one){
+		String b = "0";
+		try{
+			writer.beginObject();
+			writer.name("jsonrpc").value(2);
+			writer.name("id").value(1);
+			writer.name("method").value(method);
+			writer.name("params").beginArray();
+			writer.value(sessionID);
+			writer.value(id);
+			writer.value(one);
+			writer.endArray();
+			writer.endObject();
+			writer.close();
+			b = gson.toJson(writer);
+			//writer.flush();
+			b = CleanJsonObject(b);
+		}catch(IOException e){
+			System.out.println("ioexception");
+		}catch(NullPointerException e){
+			System.out.println("null pointer exception");
+		}finally{
+		}
+		return b;
+	}
+	protected String Request(String method, String sessionID, String id, String one, String two){
+		String b = "0";
+		try{
+			writer.beginObject();
+			writer.name("jsonrpc").value(2);
+			writer.name("id").value(1);
+			writer.name("method").value(method);
+			writer.name("params").beginArray();
+			writer.value(sessionID);
+			writer.value(id);
+			writer.value(one);
+			writer.value(two);
+			writer.endArray();
+			writer.endObject();
+			writer.close();
+			b = gson.toJson(writer);
+			//writer.flush();
+			b = CleanJsonObject(b);
+		}catch(IOException e){
+			System.out.println("ioexception");
+		}catch(NullPointerException e){
+			System.out.println("null pointer exception");
+		}finally{
+		}
+		return b;
+	}
+
 	protected String BasicRequest(String method, String sessionID, String id){
 		String b = "0";
 		try{

@@ -9,7 +9,7 @@ public class Response {
     
     //Inner Class Definitions
     class Result{
-        String session_id, url, guid, number_of_ships_building, cost_to_subsidize, spy_count;
+        String session_id, url, guid, number_of_ships_building, cost_to_subsidize, spy_count, fleet_send_limit;
         DockedShips docked_ships;
         ArrayList <Spies> spies;
         ArrayList <String> possible_assignments;
@@ -20,6 +20,40 @@ public class Response {
         HashMap<Integer, Building>buildings;
         Messages messages[];//used when previewing multiple messages
         Messages message; //used when reading a single message
+        ArrayList<Stars> stars;
+        ArrayList<Orbiting> orbiting;
+        ArrayList<Incoming> incoming;
+        //ArrayList<Unavailable> unavailable;
+        ArrayList<Available> available;
+        
+    }
+    class Incoming{
+    	
+    }
+    class Orbiting{
+    	
+    }
+    class Unavailable{
+    	HashMap<String, String> reason;
+    	Ship ship;
+    }
+    class Ship{
+    	String can_recall, fleet_speed, name, date_available, task, max_occupants, combat, stealth, can_scuttle, speed, berth_level, hold_size, id, type, type_human, date_started;
+    	//payload[]  Don't know how this would look like yet
+    }
+    class Available{
+    	String estimated_travel_time, can_recall, fleet_speed, name, date_available, task, max_occupants, combat, stealth, can_scuttle, speed, berth_level, hold_size, id, type, type_human, date_started;
+    	//payload[]  Don't know how this would look like yet
+    }
+    class Stars{
+    	String zone, name, x, y, color, id;
+    	Station station;
+    	ArrayList<Bodies> bodies[];
+    }
+    class Bodies{
+    	Station station;
+    	Ore ore;
+    	String star_id, zone, name, x, y, size, image, orbit, id, type, star_name;
     }
     class DockedShips{
     	String excavator, observatory_seeker, spaceport_seeker, snark3, snark2, snark, short_range_colony_ship, sweeper, fighter, scow, scow_mega, probe, hulk, hulk_fast;

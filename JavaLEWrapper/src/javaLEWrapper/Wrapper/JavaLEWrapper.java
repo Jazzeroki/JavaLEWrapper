@@ -5,6 +5,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.InputMismatchException;
 //import java.util.Map;
 import java.util.Map.Entry;
@@ -20,6 +21,7 @@ import javaLEWrapper.Wrapper.Response.Messages;
 import javaLEWrapper.Wrapper.Response.Result;
 import javaLEWrapper.Wrapper.Response.Spies;
 import javaLEWrapper.Wrapper.Response.Spies.PossibleAssignments;
+import javaLEWrapper.Wrapper.Spaceport.Target;
 
 
 public class JavaLEWrapper {
@@ -158,6 +160,12 @@ public class JavaLEWrapper {
     	}while(i==0);
     	input.close();
     }
+    static String GetSingleInputFromUser(String request){
+    	System.out.println(request);
+    	Scanner input = new Scanner(System.in);
+    	String i = input.next();
+    	return i;
+    }
     //experimental methods
     static void Captcha(){
     	Captcha c = new Captcha();
@@ -201,11 +209,11 @@ public class JavaLEWrapper {
     }
     static ArrayList<Integer> FindAllBuildingIDs(String buildingName, HashMap<Integer, Response.Building> buildings){
     	ArrayList<Integer> i = new ArrayList();
-    	//String name ="";
     	Set<Integer> buildingkeys = buildings.keySet();
     	for(int j: buildingkeys){
-    		if(buildings.get(j).name.equals(buildingName))
+    		if(buildings.get(j).name.equals(buildingName)){
     			i.add(j);
+    		}
     	} 	
     	return i;
     }
@@ -243,7 +251,7 @@ public class JavaLEWrapper {
     		
     		//System.out.println(j);
     		endloop++;  //remove this when done testing
-    		if (endloop == 3)
+    		if (endloop == 15)
     			break;
     	}
     	}
@@ -434,7 +442,51 @@ public class JavaLEWrapper {
     				break;
     			case 3:
     				//Spaceports
-    				ViewShips(planetID);
+    				//GetShipsForTargetFromPlanet(planetID);
+    				//ViewShips(planetID);
+    				ArrayList<Response.Available> availableShips = GetShipsForTargetFromPlanet(planetID);
+    				Spaceport spaceport = new Spaceport("spaceport");
+					Spaceport.Target target = new Spaceport.Target();
+					Spaceport.Arrival arrival = new Spaceport.Arrival();
+					Spaceport.Type type = new Spaceport.Type();
+					int d = 0;
+					int count = 0;
+    				for(Response.Available a: availableShips){
+    					System.out.println(a.type_human);
+    					System.out.println(a.combat);
+    					System.out.println(a.stealth);
+    					
+    					if(a.type_human.equals("Scanner")){
+    						System.out.println("found Scanner");
+    						type.combat = a.combat;
+    						type.speed = a.speed;
+    						type.stealth = a.stealth;
+    						type.type = a.type;
+    						//System.out.println
+    						d = 1;
+    					}
+    					if(a.type.equals("scanner"))
+    							count++;
+    				}
+    				type.quantity = "1";
+    				arrival.day = "0";
+    				arrival.hour = "0";
+    				arrival.minute = "5";
+    				arrival.second = "0";
+    				target.bodyName = "Omicron";
+    				Set<Spaceport.Type> t = new HashSet<Spaceport.Type>();
+    				t.add(type);
+    				String request = spaceport.SendShipTypes(sessionID, planetID, target, type, arrival);
+    				System.out.println(request);
+    				String reply = server.ServerRequest(gameServer, spaceport.url, request);
+    				System.out.println(reply);
+    				boolean looper = true;
+    				do{
+    					request = GetSingleInputFromUser("Enter the json request");
+    					System.out.println(request);
+    					reply = server.ServerRequest(gameServer, spaceport.url, request);
+    					System.out.println("reply");
+    				}while(looper == true);
     				break;
     			case 4:
     				//Intelministry
@@ -443,11 +495,16 @@ public class JavaLEWrapper {
     				break;
     			case 5:
     				//Trade
+    				SpaceportSpammer(planetID);
     			case 6:
     				PrintAllBuildingsOnPlanet(planetID);
     				break;
+    			case 7:
+    				System.out.println(planets.get(planetID).body.x);
+    				GetAllBodiesInRange30(Integer.parseInt(planets.get(planetID).status.body.x), Integer.parseInt(planets.get(planetID).status.body.y));
+    				break;
     			case 0:
-    				i = 1;
+    				PlanetControlsMenu();
     				break;
     			default:
     				System.out.println("Invalid Selection");
@@ -470,6 +527,56 @@ public class JavaLEWrapper {
     	String reply = server.ServerRequest(gameServer, spaceport.url, request);
     	System.out.println(reply);
     }
+    static ArrayList<Response.Available>  GetShipsForTargetFromPlanet(String planetID){
+    //static void GetShipsForTargetFromPlanet(String planetID){
+    	Spaceport spaceport = new Spaceport("spaceport");
+    	Spaceport.Target target = new Spaceport.Target();
+    	target.bodyName = GetSingleInputFromUser("Enter the target planet name");
+    	String request = spaceport.GetShipsFor(sessionID, planetID, target);//spaceport.ViewAllShips(sessionID, String.valueOf(bID));
+    	//System.out.println(request);
+    	String reply = server.ServerRequest(gameServer, spaceport.url, request);
+    	//System.out.println("deserializing");
+    	//System.out.println(reply);
+    	Response r = gson.fromJson(reply, Response.class);
+    	//System.out.println("deserialized");
+    	/*for(Response.Available a: r.result.available){
+			System.out.println(a.type_human);
+		} */
+    	return r.result.available;
+    	//System.out.println(reply);
+    }
+    static void GetAllBodiesInRange30(int x, int y){
+    	int x1, x2, y1, y2;
+    	x1 = x-15;
+    	x2 = x+15;
+    	y1 = y-15;
+    	y2 = y+15;
+    	Map map = new Map();
+    	String request = map.GetStars(sessionID, Integer.toString(x1), Integer.toString(y1), Integer.toString(x2), Integer.toString(y2));
+    	System.out.println(request);
+    	String reply = server.ServerRequest(gameServer, map.url, request);
+    	System.out.println(reply);
+    }
+    static void SpaceportSpammer(String planetID){
+    	String bodyID = "432750";
+    	int x = -5;
+    	int y = 5;
+    	for(int i=0; i<120; i=0){
+    		Spaceport spaceport = new Spaceport("spaceport");
+    		String request = spaceport.Build(sessionID, bodyID, String.valueOf(x), String.valueOf(y));
+    		System.out.println(request);
+    		String reply = server.ServerRequest(gameServer, spaceport.url, request);
+    		System.out.println(reply);
+    		i++;
+    		x++;
+    		if(x==6){
+    			x=-5;
+    			y--;
+    		}
+    	}
+    }
+    
+    
 //Shipyard methods
     static void MenuFillShipyardsWith(String planetID){
     	int i = 0;
@@ -495,12 +602,14 @@ public class JavaLEWrapper {
         	System.out.println("16: Thud");
         	System.out.println("17: Sec. Min. Seeker");
         	System.out.println("18: Supply Pod 4");
+        	System.out.println("19: Scanner");
         	System.out.println("0: Return to previous menu");
         	
     		try{
     			control = input.nextInt();
     			switch(control){
     			case 1:
+    				//System.out.println("Starting to build Snark 3's");
     				FillAllShipyardsWithShipTypeOnePlanet(planetID, "snark3");
     				break;
     			case 2:
@@ -554,8 +663,11 @@ public class JavaLEWrapper {
     			case 18:
     				FillAllShipyardsWithShipTypeOnePlanet(planetID, "supply_pod4");
     				break;
+    			case 19:
+    				FillAllShipyardsWithShipTypeOnePlanet(planetID, "scanner");
+    				break;
     			case 0:
-    				i = 1;
+    				PlanetControlsMenu();
     				break;
     			default:
     				System.out.println("Invalid Selection");
@@ -569,10 +681,11 @@ public class JavaLEWrapper {
     	
     }
     static void FillAllShipyardsWithShipTypeOnePlanet(String planetID, String shipType){
-    	ArrayList<Integer> shipyards = FindAllBuildingIDs("shipyard", planets.get(planetID).buildings);
+    	ArrayList<Integer> shipyards = FindAllBuildingIDs("Shipyard", planets.get(planetID).buildings);
     	String buildingLevel, request, reply;
     	int shipCount = 0;
     		for(int bID: shipyards){
+    			//System.out.println(bID);
     			Shipyard shipyard = new Shipyard();
     			buildingLevel = planets.get(planetID).buildings.get(bID).level;
     			request = shipyard.BuildShip(sessionID, String.valueOf(bID), shipType, Integer.valueOf(buildingLevel));
