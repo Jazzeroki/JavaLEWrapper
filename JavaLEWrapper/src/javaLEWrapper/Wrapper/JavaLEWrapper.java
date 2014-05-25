@@ -1,7 +1,14 @@
 package javaLEWrapper.Wrapper;
 import com.google.gson.Gson;
-
+//import System.out;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -32,6 +39,7 @@ public class JavaLEWrapper {
 			return name.compareTo(n.name);
 		}
 	} */
+	
 	static String version = "Alpha 0.01";
 	static String sessionID = null;
 	static String gameServer = null;
@@ -47,30 +55,55 @@ public class JavaLEWrapper {
 	static ArrayList <String> stationNames = new ArrayList<String>(); //For storing a sorted collection of station names
     
 	public static void main(String[] args) {
+		ClearLog();
 		GetSession();
 		MainMenu();
     }
     
     //Main Controls
+	static void ClearLog(){
+		PrintWriter writer;
+		try {
+			writer = new PrintWriter("IO.log");
+			writer.print("");
+			writer.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e){
+			
+		}
+
+	}
+	static void SaveToLog(String log){
+		try(PrintWriter out = new PrintWriter(new FileWriter("IO.log", true))) {
+			out.println(" ");
+		    out.println(log);
+		}catch (IOException e) {
+		    //exception handling left as an exercise for the reader
+		}
+	
+	}
     static void GetSession(){
     	AccountManager a = new AccountManager();
+    	AccountInfo account = a.SelectAccountMenu();
     	//System.out.println("Calling Get account");
-	    if(!new File("Account.Jazz").isFile()){ //if an account file doesn't exist one is created
-	    	a.CreateAccount();
-	    }
-    	String i = a.GetAccount();
+	   // if(!new File("Account.Jazz").isFile()){ //if an account file doesn't exist one is created
+	    //	a.CreateAccount();
+	    //}
+    	//String i = a.GetAccount();
     	//Need to deserialize string
-    	AccountInfo account = new AccountInfo();
-    	account = gson.fromJson(i, AccountInfo.class);
-    	gameServer = account.Server;
+    	//AccountInfo account = new AccountInfo();
+    	//account = gson.fromJson(i, AccountInfo.class);
+    	gameServer = account.server;
     	//System.out.println("account deserialized");
     	
     	//Getting SessionID
     	Empire e = new Empire();
-    	i = e.Login(account.userName, account.Password, 1);
-    	i = server.ServerRequest(gameServer, e.url, i);
-    	System.out.println(i);
-    	Response r = gson.fromJson(i, Response.class);
+    	String request = e.Login(account.userName, account.password, 1);
+    	String reply = server.ServerRequest(gameServer, e.url, request);
+    	//System.out.println(i);
+    	Response r = gson.fromJson(reply, Response.class);
     	
     	//setting values for empire details
     	sessionID = r.result.session_id;
@@ -395,10 +428,6 @@ public class JavaLEWrapper {
     			System.out.println("Invalid Selection.");
     		else{
     			IndividualPlanetOptionsMenu(GetPlanetID(planetNames.get(control -1)));
-    		//String planetID = GetPlanetID(planetNames.get(control -1));
-    		
-    		//System.out.println("control = "+control);
-    		//System.out.println(planetID);
     		}
     		}catch(InputMismatchException e){
     			System.out.println("Invalid selection.");
@@ -421,7 +450,8 @@ public class JavaLEWrapper {
     	System.out.println("1: Repair All Buildings");
     	System.out.println("2: Fill all shipyards with ships of a selected type");
     	System.out.println("3: Spaceport");
-    	System.out.println("4: Spies");
+    	System.out.println("4: Assign Spies");
+    	System.out.println("5: Launch Fleet");
     	System.out.println("6: Print all buildings on planet");
     	System.out.println("0: Return to Planets Menu");
     }
@@ -442,60 +472,19 @@ public class JavaLEWrapper {
     				break;
     			case 3:
     				//Spaceports
-    				//GetShipsForTargetFromPlanet(planetID);
-    				//ViewShips(planetID);
-    				ArrayList<Response.Available> availableShips = GetShipsForTargetFromPlanet(planetID);
-    				Spaceport spaceport = new Spaceport("spaceport");
-					Spaceport.Target target = new Spaceport.Target();
-					Spaceport.Arrival arrival = new Spaceport.Arrival();
-					Spaceport.Type type = new Spaceport.Type();
-					int d = 0;
-					int count = 0;
-    				for(Response.Available a: availableShips){
-    					System.out.println(a.type_human);
-    					System.out.println(a.combat);
-    					System.out.println(a.stealth);
-    					
-    					if(a.type_human.equals("Scanner")){
-    						System.out.println("found Scanner");
-    						type.combat = a.combat;
-    						type.speed = a.speed;
-    						type.stealth = a.stealth;
-    						type.type = a.type;
-    						//System.out.println
-    						d = 1;
-    					}
-    					if(a.type.equals("scanner"))
-    							count++;
-    				}
-    				type.quantity = "1";
-    				arrival.day = "0";
-    				arrival.hour = "0";
-    				arrival.minute = "5";
-    				arrival.second = "0";
-    				target.bodyName = "Omicron";
-    				Set<Spaceport.Type> t = new HashSet<Spaceport.Type>();
-    				t.add(type);
-    				String request = spaceport.SendShipTypes(sessionID, planetID, target, type, arrival);
-    				System.out.println(request);
-    				String reply = server.ServerRequest(gameServer, spaceport.url, request);
-    				System.out.println(reply);
-    				boolean looper = true;
-    				do{
-    					request = GetSingleInputFromUser("Enter the json request");
-    					System.out.println(request);
-    					reply = server.ServerRequest(gameServer, spaceport.url, request);
-    					System.out.println("reply");
-    				}while(looper == true);
+    				
     				break;
     			case 4:
     				//Intelministry
     				ArrayList <Spies> spies =  GetSpies(planetID);
-    				AssignAllSpies(spies, planetID, "Counter Espionage");
+    				String assignment = SpyAssignmentSelectionMenu();
+    				AssignAllSpies(spies, planetID, assignment);
     				break;
     			case 5:
     				//Trade
-    				SpaceportSpammer(planetID);
+    				//SpaceportSpammer(planetID);
+    				LaunchFleet(planetID);
+    				break;
     			case 6:
     				PrintAllBuildingsOnPlanet(planetID);
     				break;
@@ -545,38 +534,85 @@ public class JavaLEWrapper {
     	return r.result.available;
     	//System.out.println(reply);
     }
-    static void GetAllBodiesInRange30(int x, int y){
-    	int x1, x2, y1, y2;
-    	x1 = x-15;
-    	x2 = x+15;
-    	y1 = y-15;
-    	y2 = y+15;
-    	Map map = new Map();
-    	String request = map.GetStars(sessionID, Integer.toString(x1), Integer.toString(y1), Integer.toString(x2), Integer.toString(y2));
-    	System.out.println(request);
-    	String reply = server.ServerRequest(gameServer, map.url, request);
-    	System.out.println(reply);
-    }
+
     static void SpaceportSpammer(String planetID){
-    	String bodyID = "432750";
+    	//String bodyID = "432750";
     	int x = -5;
     	int y = 5;
-    	for(int i=0; i<120; i=0){
+    	do{
     		Spaceport spaceport = new Spaceport("spaceport");
-    		String request = spaceport.Build(sessionID, bodyID, String.valueOf(x), String.valueOf(y));
+    		String request = spaceport.Build(sessionID, planetID, String.valueOf(x), String.valueOf(y));
     		System.out.println(request);
     		String reply = server.ServerRequest(gameServer, spaceport.url, request);
     		System.out.println(reply);
-    		i++;
     		x++;
     		if(x==6){
     			x=-5;
     			y--;
     		}
-    	}
+    	}while(y!=-6);
     }
-    
-    
+    static Response.Available FindSpaceshipOfType(ArrayList<Response.Available> ships, String typeToFind){
+    	for(Response.Available a: ships){
+			System.out.println(a.type_human);
+			System.out.println(a.combat);
+			System.out.println(a.stealth);
+			
+			if(a.type_human.equals(typeToFind)){
+				return a;
+			}
+		}
+		return null;
+    }
+    static void LaunchFleet(String planetID){
+    	int bID = FindBuildingID("spaceport", planets.get(planetID).buildings);
+    	Spaceport spaceport = new Spaceport("spaceport");
+    	Spaceport.Target target  = new Spaceport.Target();
+    	target.bodyID = "419879";
+    	//target.bodyName = GetSingleInputFromUser("ZZ Anarchy: Sital");
+    	String request = spaceport.GetShipsFor(sessionID, planetID, target);
+    	System.out.println(request);
+    	SaveToLog(request);
+    	String reply = server.ServerRequest(gameServer, spaceport.url, request);
+    	System.out.println(reply);
+    	SaveToLog(reply);
+    	Response response = gson.fromJson(reply, Response.class);
+    	ArrayList<String> ships = new ArrayList<String>();
+    	Captcha();
+    	if (response.result.available.size() != 0){
+    		GetSingleInputFromUser("hi1");
+    		for(Response.Available a: response.result.available){
+    			System.out.println(a.type);
+    			if(a.type.contains("snark"))
+    				ships.add(a.id);
+    		
+    		}
+    	}
+    	ArrayList<String> temp = new ArrayList<String>();
+    	if(ships.size()!=0){
+    		GetSingleInputFromUser("hi");
+    		int count = 0;
+    		for(String s: ships){
+    			
+    			temp.add(s);
+    			count++;
+    			System.out.println(count);
+    			if(count == 20){
+    				Spaceport space = new Spaceport("spaceport");
+    				String r = space.SendFleet(sessionID, temp, target);
+    				SaveToLog(r);
+    				r =server.ServerRequest(gameServer, spaceport.url, r);
+    				SaveToLog(r);
+    				temp.clear();
+    				count = 0;
+    				//break;
+    			}
+    		}
+    	}
+    		
+    	//System.out.println(reply);
+    }
+//    	
 //Shipyard methods
     static void MenuFillShipyardsWith(String planetID){
     	int i = 0;
@@ -694,6 +730,26 @@ public class JavaLEWrapper {
     		}
     	System.out.println(shipCount +" "+ shipType +" now under construction on "+ planetList.get(planetID));
     }
+    
+
+//Map Controls
+    static void GetAllBodiesInRange30(int x, int y){
+    	int x1, x2, y1, y2;
+    	x1 = x-15;
+    	x2 = x+15;
+    	y1 = y-15;
+    	y2 = y+15;
+    	Map map = new Map();
+    	String request = map.GetStars(sessionID, Integer.toString(x1), Integer.toString(y1), Integer.toString(x2), Integer.toString(y2));
+    	SaveToLog("");
+    	SaveToLog(request);
+    	//System.out.println(request);
+    	String reply = server.ServerRequest(gameServer, map.url, request);
+    	SaveToLog("");
+    	SaveToLog(reply);
+    	//System.out.println(reply);
+    }
+    
     static void PrintAllBuildingsOnPlanet(String planetIDNumber){
     	HashMap<Integer, Response.Building> buildings = planets.get(planetIDNumber).buildings;
     	Set<Integer> buildingkeys = buildings.keySet();
@@ -706,6 +762,7 @@ public class JavaLEWrapper {
     		System.out.println(b.name);
     	}
     }
+    
     static void RepairBuilding(String buildingID, String buildingName){
     	buildingName.toLowerCase();
     	buildingName.replace(" ", "");
@@ -714,8 +771,10 @@ public class JavaLEWrapper {
     	//System.out.println(buildingName);
 		Buildings b = new Buildings(buildingName);
 		String request = b.Repair(sessionID, buildingID);
+		System.out.println(request);
 		String reply = server.ServerRequest(gameServer, b.url, request);
-		Response r = gson.fromJson(reply, Response.class);
+		System.out.println(reply);
+		//Response r = gson.fromJson(reply, Response.class);
     }
     static void RepairAllPlanetBuildings(String planetIDNumber){
     	//dumbly iterates through all buildings on a planet attempting repairs if efficiency is less than 0
@@ -748,16 +807,135 @@ public class JavaLEWrapper {
     	Response r = gson.fromJson(reply, Response.class);
     	return r.result.spies;
     }
+    static String SpyAssignmentSelectionMenu(){
+
+    	int i = 0;
+    	int control = 0;
+    	Scanner input = new Scanner(System.in);
+    	do{
+    		System.out.println("Select spy assignment");
+    		System.out.println("1: Idle");
+    		System.out.println("2: Counter Espionage");
+    		System.out.println("3: Security Sweep");
+    		System.out.println("4: Intel Training");
+    		System.out.println("5: Mayhem Training");
+    		System.out.println("6: Politics Training");
+    		System.out.println("7: Theft Training");
+    		System.out.println("8: Political Propaganda");
+    		System.out.println("9: Gather Resource Intelligence");
+    		System.out.println("10: Gather Empire Intelligence");
+    		System.out.println("11: Gather Operative Intelligence");
+    		System.out.println("12: Gather Operative Intelligence");
+    		System.out.println("13: Sabotage Probes");
+    		System.out.println("14: Rescue Comrades");
+    		System.out.println("15: Sabotage Resources");
+    		System.out.println("16: Appropriate Resources");
+    		System.out.println("17: Assassinate Operatives");
+    		System.out.println("18: Sabotage Infrastructure");
+    		System.out.println("19: Sabotage BHG");
+    		System.out.println("20: Incite Mutiny");
+    		System.out.println("21: Abduct Operatives");
+    		System.out.println("22: Appropriate Technology");
+    		System.out.println("23: Incite Rebellion");
+    		System.out.println("24: Incite Insurrection");
+    		try{
+    			control = input.nextInt();
+    			switch(control){
+    			case 1:
+    				return "idle";
+				case 2:
+					return "Counter Espionage";
+				case 3:
+					return "Security Sweep";
+				case 4:
+					return "Intel Training";
+				case 5:
+					return "Mayhem Training";
+				case 6:
+					return "Politics Training";
+				case 7:
+					return "Theft Training";
+				case 8:
+					return "Political Propaganda";
+				case 9:
+					return "Gather Resource Intelligence";
+				case 10:
+					return "Gather Empire Intelligence";
+				case 11:
+					return "Gather Operative Intelligence";
+				case 12:
+					return "Hack Network 19";
+				case 13:
+					return "Sabotage Probes";
+				case 14:
+					return "Rescue Comradese";
+				case 15:
+					return "Sabotage Resources";
+				case 16:
+					return "Appropriate Resources";
+				case 17:
+					return "Assassinate Operatives";
+				case 18:
+					return "Sabotage Infrastructure";
+				case 19:
+					return "Sabotage BHG";
+				case 20:
+					return "Incite Mutiny";
+				case 21:
+					return "Abduct Operatives";
+				case 22:
+					return "Appropriate Technology";
+				case 23:
+					return "Incite Rebellion";
+    			case 24:
+    				return "Incite Insurrection";
+    			default:
+    				System.out.println("Invalid Selection");
+    			}
+    				
+    			
+    		}catch(InputMismatchException e){
+    			System.out.println("Not a valid selection.");
+    		}
+    		
+    	}while(i==0);
+    	input.close();
+		return null;
+    }
     static void AssignAllSpies(ArrayList <Spies> spies, String planetID, String assignment){
     	if(captchaValid==false)
     		Captcha();
     	int bID = FindBuildingID("Intelligence Ministry", planets.get(planetID).buildings);
     	String request, reply;
+    	
     	for(Spies s: spies){
     		Intelligence intel = new Intelligence("intelligence");
     		request = intel.AssignSpy(sessionID, String.valueOf(bID), s.id, assignment);
     		reply = server.ServerRequest(gameServer, intel.url, request);
     		
+    	}
+    }
+    static void AssignAllSpiesToTrain(ArrayList <Spies> spies, String planetID){
+    	if(captchaValid==false)
+    		Captcha();
+    	int bID = FindBuildingID("Intelligence Ministry", planets.get(planetID).buildings);
+    	String request, reply, assignment = "";
+    	int count = 0;
+    	for(Spies s: spies){
+    		if(count == 0)
+    			assignment =  "Intel Training";
+    		if(count == 17)
+    			assignment =  "Mayhem Training";
+    		if(count == 35)
+    			assignment =  "Mayhem Training";
+    		if(count == 53)
+    			assignment =  "Mayhem Training";
+    		if(count == 71)
+    			assignment =  "Mayhem Training";
+    		Intelligence intel = new Intelligence("intelligence");
+    		request = intel.AssignSpy(sessionID, String.valueOf(bID), s.id, assignment);
+    		reply = server.ServerRequest(gameServer, intel.url, request);
+    		count++;
     	}
     }
     static void SendSpies(){
@@ -921,6 +1099,56 @@ public class JavaLEWrapper {
     	}while(c==0);
     	input.close();
     	//System.out.println(r.result.messages[1].subject);
+    }
+
+
+    static void LargeFleetSenderTest(String planetID){
+    	//GetShipsForTargetFromPlanet(planetID);
+		//ViewShips(planetID);
+		//Captcha();
+		ArrayList<Response.Available> availableShips = GetShipsForTargetFromPlanet(planetID);
+		Spaceport spaceport = new Spaceport("spaceport");
+		Spaceport.Target target = new Spaceport.Target();
+		Spaceport.Arrival arrival = new Spaceport.Arrival();
+		Spaceport.Type type = new Spaceport.Type();
+		int d = 0;
+		int count = 0;
+		for(Response.Available a: availableShips){
+			System.out.println(a.type_human);
+			System.out.println(a.combat);
+			System.out.println(a.stealth);
+			
+			if(a.type_human.equals("Sweeper")){
+				//System.out.println("found Scanner");
+				type.combat = a.combat;
+				type.speed = a.speed;
+				type.stealth = a.stealth;
+				type.type = a.type;
+				//System.out.println
+				d = 1;
+			}
+			if(a.type.equals("sweeper"))
+					count++;
+		}
+		type.quantity = "1";
+		arrival.day = "22";
+		arrival.hour = "10";
+		arrival.minute = "5";
+		arrival.second = "0";
+		target.bodyName = "Omicron";
+		Set<Spaceport.Type> t = new HashSet<Spaceport.Type>();
+		t.add(type);
+		String request = spaceport.SendShipTypes(sessionID, planetID, target, type, arrival);
+		System.out.println(request);
+		String reply = server.ServerRequest(gameServer, spaceport.url, request);
+		System.out.println(reply);
+		boolean looper = true;
+		do{
+			request = GetSingleInputFromUser("Enter the json request");
+			System.out.println(request);
+			reply = server.ServerRequest(gameServer, spaceport.url, request);
+			System.out.println("reply");
+		}while(looper == true);
     }
 }
 

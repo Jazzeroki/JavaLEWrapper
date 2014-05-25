@@ -1,6 +1,7 @@
 package javaLEWrapper.Wrapper;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Set;
 
 public class Spaceport extends Buildings {
@@ -181,10 +182,41 @@ public class Spaceport extends Buildings {
 		//	}
 		//}
 		//type+="]";
-		String b = "{\"id\":8,\"method\":\"send_ship_types\",\"jsonrpc\":\"2.0\",\"params\":[\""+sessionID+"\",\""+fromBodyID+"\",{\""+t+"\"},"+type+","+a+" ]}";
+		String b = "{\"id\":8,\"method\":\"send_ship_types\",\"jsonrpc\":\"2.0\",\"params\":[\""+sessionID+"\",\""+fromBodyID+"\",{\""+t+"\"},["+type+"],"+a+" ]}";
 		return b;
 	}
-
+	String SendFleet(String sessionID, ArrayList<String> ships, Target target){
+		String t = ""; //Sets the target
+		if(!target.bodyID.isEmpty()){
+			t = "body_id\":\""+target.bodyID;
+		}
+		else if(!target.bodyName.isEmpty()){
+			t = "body_name\":\""+target.bodyName;
+		}
+		else if(!target.starID.isEmpty()){
+			t = "star_id\":\""+target.starID;
+		}
+		else if(!target.starName.isEmpty()){
+			t = "star_name\":\""+target.starName;
+		}
+		else{
+			t = "x\":\""+target.x+"\",\"y\":\""+target.y;
+		}
+		
+		String s =""; //Creates the ships list to send
+		int count = ships.size();
+		int counter = 0;
+		for(String j: ships){
+			s+=j;
+			counter++;
+			if(counter == count)
+				s+= "\"";
+			else
+				s+= "\",\"";
+		}
+		String i = "{\"id\":15,\"method\":\"send_fleet\",\"jsonrpc\":\"2.0\",\"params\":[\""+sessionID+"\",[\""+s+"],{\""+t+"\"},0]}";
+				return i;
+	}
 static class Target{
 		Target(){
 			bodyName = "";

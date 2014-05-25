@@ -7,6 +7,7 @@ public class Buildings extends LESuperClass {
 	String url;
 	Buildings(String buildingName){
 		url = buildingName.toLowerCase();
+		System.out.println(url);
     	url = url.replace(" ", "");
     	if (url.equals("archaeologyministry"))
     		url = "entertainment";
@@ -80,6 +81,8 @@ public class Buildings extends LESuperClass {
     		url = "security";
     	if (url.contains("shake"))
     		url = "shake";
+    	if (url.contains("shipyard"))
+    		url = "shipyard";
     	if (url.contains("singularity"))
     		url = "singularity";
     	if (url.contains("syrup"))

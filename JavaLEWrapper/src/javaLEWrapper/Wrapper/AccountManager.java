@@ -16,15 +16,90 @@ import com.google.gson.Gson;
 import com.google.gson.stream.JsonWriter;
 
 public class AccountManager {
-	//private Gson gson = new Gson();
-	//private StringWriter w = new StringWriter();
-	//private JsonWriter writer = new JsonWriter(w);
-	
-	void Menu(){}
-	void CreateAccount(){
+	static Gson gson = new Gson();
+	Accounts accounts;
+	AccountManager(){
+		accounts=new Accounts();
+		if(!new File("accounts.jazz").isFile()) //if an account file doesn't exist one is created
+		    CreateAccount();
+		else{
+		BufferedReader br = null;
+		String i = "";
+		try{
+			br = new BufferedReader(new FileReader("accounts.jazz"));
+	        StringBuilder sb = new StringBuilder();
+	        String line = br.readLine();
+
+	        while (line != null) {
+	            sb.append(line);
+	            line = br.readLine();
+	            i = sb.toString();
+	            }
+	       accounts = gson.fromJson(i, Accounts.class);
+		}catch (FileNotFoundException e){
+			CreateAccount();
+	     }catch(IOException e){
+	    	 
+	     }
+		}
+	}
+	void Save(){
+		System.out.println("Starting Save, serializing account");
+		String i = gson.toJson(accounts, Accounts.class);
+		System.out.println("serialized");
+		try {
+			PrintWriter writer = new PrintWriter("accounts.jazz");
+			System.out.println("saving");
+			writer.print(i);
+			System.out.println("closing writer");
+			writer.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e){
+			
+		}
+	}
+	AccountInfo SelectAccountMenu(){
 		Scanner input = new Scanner(System.in);
-		String apiKey = "";
-		String server = null;
+		int control = 0;
+		boolean x = false;
+		do{
+			System.out.println("Select and account");
+			int counter = 0;
+			for(AccountInfo j: accounts.accounts){
+				counter++;
+				System.out.println(counter+" : "+j.userName);
+			}
+			System.out.println("requesting input");
+			boolean z = false;
+			do{  //Setting up this do loop with a try because sometimes input throws an error because what is there isn't a valid int.
+				try{
+					control = input.nextInt();
+					System.out.println("setting z = true");
+					z = true;
+				}catch(java.util.NoSuchElementException e){
+					
+				}
+				
+			
+			}while(z == false);
+			if(control == 0){
+				System.out.println("calling create account");
+				CreateAccount();
+			}
+			else if(control > accounts.accounts.size())
+    			System.out.println("Invalid Selection.");
+    		else{
+    			System.out.println("returning selected account");
+    			return accounts.accounts.get((control -1));	
+    		}
+		}while(x == false);
+		return null;
+	}
+	void CreateAccount(){
+		AccountInfo a = new AccountInfo();
+		Scanner input = new Scanner(System.in);
 		int control = 0;
         int i = 1;
         //do{
@@ -34,15 +109,15 @@ public class AccountManager {
             	  control = input.nextInt();
               	switch(control){
             	case 1:
-            		server = "https://us1.lacunaexpanse.com";
+            		a.server = "https://us1.lacunaexpanse.com";
             		i = 0;
             		break;
             	case 2:
-            		server = "https://pt.lacunaexpanse.com";
+            		a.server = "https://pt.lacunaexpanse.com";
             		i = 0;
             		break;
             	case 3:
-            		server = "http://lacuna.icydee.com";
+            		a.server = "http://lacuna.icydee.com";
             		i = 0;
             		break;
             	default:
@@ -57,12 +132,14 @@ public class AccountManager {
         	} while (i == 1);
         				
 		System.out.println("Enter Username");
-		String userName = input.next();
+		a.userName = input.next();
 		System.out.println("Enter Password");
-		String password = input.next();
-		
-		SaveToFile(userName, password, apiKey, server);
+		a.password = input.next();
+		a.aPIKey = "";
+		System.out.println("Adding account to list");
+		accounts.accounts.add(a);
 		input.close();
+		Save();
 	}
 //	void LoadFromFile(){}
 	void SaveToFile(String userName, String password, String apiKey, String server){
@@ -72,9 +149,9 @@ public class AccountManager {
 		try {
 			AccountInfo account = new AccountInfo();
 			account.userName = userName;
-			account.Password = password;
-			account.APIKey = apiKey;
-			account.Server = server;
+			account.password = password;
+			account.aPIKey = apiKey;
+			account.server = server;
 			
 			String i = g.toJson(account);
 			PrintWriter w = new PrintWriter("Account.Jazz","UTF-8");
@@ -121,8 +198,11 @@ public class AccountManager {
 		}
 	}
 class Accounts{
+	Accounts(){
+		accounts = new ArrayList<AccountInfo>();
+	}
 	ArrayList<AccountInfo> accounts;
 }
 class AccountInfo{
-	String userName, Password, APIKey, Server;
+	String userName, password, aPIKey, server;
 }
