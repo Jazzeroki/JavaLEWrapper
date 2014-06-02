@@ -171,17 +171,10 @@ public class Spaceport extends Buildings {
 		else
 			t = "x\":\""+target.x+"\",\"y\":\""+target.y;
 		String a = "{\"day\":\""+arrival.day+"\",\"hour\":\""+arrival.hour+"\",\"minute\":\""+arrival.minute+"\",\"second\":\""+arrival.second+"\"}";
-		//String type = "[";
 		String type = "";
-		//int count = types.size();
-		//for(Type l: types){
-			//--count;
-			type  += "{\"type\":\""+types.type+"\",\"speed\":\""+types.speed+"\",\"stealth\":\""+types.stealth+"\",\"quantity\":\""+types.quantity+"\"}";
-		//	if(count != 0){
-		//		type+=",";
-		//	}
-		//}
-		//type+="]";
+		//type += "{\"type\":\"sweeper\",\"quantity\":\"1\"}";
+		type  += "{\"type\":\""+types.type+"\",\"speed\":\""+types.speed+"\",\"stealth\":\""+types.stealth+"\",\"combat\":\""+types.combat+"\",\"quantity\":\""+types.quantity+"\"}";
+
 		String b = "{\"id\":8,\"method\":\"send_ship_types\",\"jsonrpc\":\"2.0\",\"params\":[\""+sessionID+"\",\""+fromBodyID+"\",{\""+t+"\"},["+type+"],"+a+" ]}";
 		return b;
 	}

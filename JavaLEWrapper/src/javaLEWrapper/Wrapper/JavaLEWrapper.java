@@ -1,5 +1,7 @@
 package javaLEWrapper.Wrapper;
 import com.google.gson.Gson;
+
+
 //import System.out;
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,6 +26,7 @@ import java.net.URL;
 import java.awt.Desktop;
 import java.awt.List;
 
+import javaLEWrapper.Wrapper.OriginalResponse.Result.Prisoner;
 import javaLEWrapper.Wrapper.Response.Messages;
 import javaLEWrapper.Wrapper.Response.Result;
 import javaLEWrapper.Wrapper.Response.Spies;
@@ -39,7 +42,7 @@ public class JavaLEWrapper {
 			return name.compareTo(n.name);
 		}
 	} */
-	
+
 	static String version = "Alpha 0.01";
 	static String sessionID = null;
 	static String gameServer = null;
@@ -48,9 +51,9 @@ public class JavaLEWrapper {
 	static int newMessages;
 	static boolean captchaValid = false;
 	static HashMap <String, String> planetList = new HashMap <String, String>() ;
-	static HashMap <String, Response.Result> stations = new HashMap<>();
+	static HashMap <String, Response.Result> stations = new HashMap<String, Response.Result>();
 	static HashMap <String, Response.Result> planets = new HashMap<>();
-	
+
 	static ArrayList <String> planetNames = new ArrayList<String>(); //For storing a sorted collection of planet names
 	static ArrayList <String> stationNames = new ArrayList<String>(); //For storing a sorted collection of station names
     
@@ -71,7 +74,7 @@ public class JavaLEWrapper {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (IOException e){
-			
+
 		}
 
 	}
@@ -82,27 +85,15 @@ public class JavaLEWrapper {
 		}catch (IOException e) {
 		    //exception handling left as an exercise for the reader
 		}
-	
+
 	}
     static void GetSession(){
     	AccountManager a = new AccountManager();
     	AccountInfo account = a.SelectAccountMenu();
-    	//System.out.println("Calling Get account");
-	   // if(!new File("Account.Jazz").isFile()){ //if an account file doesn't exist one is created
-	    //	a.CreateAccount();
-	    //}
-    	//String i = a.GetAccount();
-    	//Need to deserialize string
-    	//AccountInfo account = new AccountInfo();
-    	//account = gson.fromJson(i, AccountInfo.class);
     	gameServer = account.server;
-    	//System.out.println("account deserialized");
-    	
-    	//Getting SessionID
     	Empire e = new Empire();
     	String request = e.Login(account.userName, account.password, 1);
     	String reply = server.ServerRequest(gameServer, e.url, request);
-    	//System.out.println(i);
     	Response r = gson.fromJson(reply, Response.class);
     	
     	//setting values for empire details
@@ -209,7 +200,7 @@ public class JavaLEWrapper {
 		System.out.println("Please wait a moment while the captcha is loaded in a browser window");
 		System.out.println("After the captcha has appeared enter the answer and push enter");
 		//Console console = System.console();
-		
+
 		Desktop desktop = Desktop.isDesktopSupported() ? Desktop.getDesktop() : null;
 	    if (desktop != null && desktop.isSupported(Desktop.Action.BROWSE)) {
 	        try {
@@ -219,7 +210,7 @@ public class JavaLEWrapper {
 	            e.printStackTrace();
 	        }
 	    }
-		
+
 	    //for getting the answer
 	    //Console console = System.console();
 	    //System.out.println("test");
@@ -232,13 +223,13 @@ public class JavaLEWrapper {
 	    reply = server.ServerRequest(gameServer, d.url, request);
 	    System.out.println("note what the reply here looks like to see the indicator that the captcha worked so the if statment can be written");
 	    System.out.println(reply);
-	    
+
 	    captchaValid = true;
 	    //r = gson.fromJson(reply, Response.class);
 	    //if(r.result.)
 	    //System.out.println(reply);
 	    //if r.result is equal to 1 the captcha worked
-	    
+
     }
     static ArrayList<Integer> FindAllBuildingIDs(String buildingName, HashMap<Integer, Response.Building> buildings){
     	ArrayList<Integer> i = new ArrayList();
@@ -271,10 +262,18 @@ public class JavaLEWrapper {
     		String request = body.GetBuildings(1, sessionID, j);
     		String reply = server.ServerRequest(gameServer, body.url, request);
     		Response r = gson.fromJson(reply, Response.class);
-    		if (r.result.body.surface_image.equals("surface-station")) { 
+    		if (r.result.body.surface_image.contentEquals("surface-station")) {  //equals("surface-station")) { 
     			stations.put(j, r.result);
     			stationNames.add(r.result.status.body.name);
-    			System.out.println("Station "+r.result.status.body.name);
+    			System.out.println("Station added to list"+r.result.status.body.name);
+    			System.out.println(r.result.status.body.x);
+    			String station =  r.result.status.body.name+" Station id: "+j+ " Size: "+r.result.status.body.size+" x: "+r.result.status.body.x+" y: "+r.result.status.body.y;
+    			System.out.println(station);
+    			try(PrintWriter out = new PrintWriter(new FileWriter("Station.log", true))) {
+    	    			out.println(" ");
+    	    		    out.println(station);
+    	    		}catch (IOException e) {
+    	    		}
     		}
     		else{
     			planets.put(j, r.result);
@@ -359,6 +358,7 @@ public class JavaLEWrapper {
     		
     	}
     }
+    
     //Planetary Controls
     static void PrintPlanetControlsMenu(){
     	System.out.println("1: Perform Status Check.  This will sort bodies from SS if it's the first time it's run");
@@ -387,6 +387,9 @@ public class JavaLEWrapper {
     				break;
     			case 2:
     				IndividualPlanetsMenu();
+    				break;
+    			case 3:
+    				System.out.println("Empire wide options are not implemented yet");
     				break;
     			case 0:
     				MainMenu();
@@ -435,6 +438,66 @@ public class JavaLEWrapper {
     	}while (i == 0);
     	input.close();
     }
+    static void EmpireWidePlanetOptions(){
+    	int i = 0;
+    	int control = 0;
+    	Scanner input = new Scanner(System.in);
+    	
+    	do{
+    		//PrintPlanetControlsMenu();
+    		if(planets.isEmpty()){
+    			System.out.println("Getting planets and Stations, this may take a few minutes");
+    			SeperateSSandPlanets();
+    		}
+    		System.out.println("All Planets Menu");
+    		System.out.println("*warning* These methods are rpc intensive and may take several minutes to run");
+    		System.out.println("1: ");
+    		System.out.println("2: ");
+    		System.out.println("3: ");
+    		System.out.println("4: ");
+    		System.out.println("5: ");
+    		System.out.println("6: ");
+    		//PrintPlanetControlsMenu();
+    		/*Methods to implement
+    		 * RepairAllGlyph
+    		 * FillAllShipyardsWith
+    		 * CheckNearbySystems
+    		 * PlanetStatusCheck
+    		 * RunSweepsAllPlanets
+    		 * SpyTrainer
+    		 * RunAllspiesontarget
+    		 */
+    		try{
+    			control = input.nextInt();
+    			switch(control){
+    			case 1:
+    				//RepairAllGlyphBuildings
+    				
+    				break;
+    			case 2:
+    				
+    				break;
+    			case 3:
+    				System.out.println("Empire wide options are not implemented yet");
+    				break;
+    			case 0:
+    				MainMenu();
+    				break;
+    			default:
+    				System.out.println("Invalid Selection");
+    				PrintPlanetControlsMenu();
+    			}
+    				
+    			
+    		}catch(InputMismatchException e){
+    			System.out.println("Not a valid selection.");
+    		}
+    		
+    	}while(i==0);
+    	input.close();
+    }
+    
+    //method can also return the station id
     static String GetPlanetID(String name){
     	String id = "";
     	Set<String> ids = planetList.keySet();
@@ -446,13 +509,16 @@ public class JavaLEWrapper {
     	}
     	return id = "0";
     }
+
     static void PrintIndividualPlanetOptionsMenu(){
     	System.out.println("1: Repair All Buildings");
     	System.out.println("2: Fill all shipyards with ships of a selected type");
-    	System.out.println("3: Spaceport");
+    	System.out.println("3: Execute All Prisoners");
     	System.out.println("4: Assign Spies");
     	System.out.println("5: Launch Fleet");
     	System.out.println("6: Print all buildings on planet");
+    	System.out.println("7: StarMap Test *warning* experimental");
+    	System.out.println("8: Large Fleet Sender Test *warning* experimental");
     	System.out.println("0: Return to Planets Menu");
     }
     static void IndividualPlanetOptionsMenu(String planetID){
@@ -471,7 +537,7 @@ public class JavaLEWrapper {
     				MenuFillShipyardsWith(planetID);
     				break;
     			case 3:
-    				//Spaceports
+    				ExecuteAllPrisoners(planetID);
     				
     				break;
     			case 4:
@@ -491,6 +557,9 @@ public class JavaLEWrapper {
     			case 7:
     				System.out.println(planets.get(planetID).body.x);
     				GetAllBodiesInRange30(Integer.parseInt(planets.get(planetID).status.body.x), Integer.parseInt(planets.get(planetID).status.body.y));
+    				break;
+    			case 8:
+    				LargeFleetSenderTest(planetID);
     				break;
     			case 0:
     				PlanetControlsMenu();
@@ -517,22 +586,20 @@ public class JavaLEWrapper {
     	System.out.println(reply);
     }
     static ArrayList<Response.Available>  GetShipsForTargetFromPlanet(String planetID){
-    //static void GetShipsForTargetFromPlanet(String planetID){
     	Spaceport spaceport = new Spaceport("spaceport");
     	Spaceport.Target target = new Spaceport.Target();
     	target.bodyName = GetSingleInputFromUser("Enter the target planet name");
     	String request = spaceport.GetShipsFor(sessionID, planetID, target);//spaceport.ViewAllShips(sessionID, String.valueOf(bID));
-    	//System.out.println(request);
     	String reply = server.ServerRequest(gameServer, spaceport.url, request);
-    	//System.out.println("deserializing");
-    	//System.out.println(reply);
     	Response r = gson.fromJson(reply, Response.class);
-    	//System.out.println("deserialized");
-    	/*for(Response.Available a: r.result.available){
-			System.out.println(a.type_human);
-		} */
     	return r.result.available;
-    	//System.out.println(reply);
+    }
+    static ArrayList<Response.Available>  GetShipsForTargetFromPlanet(String planetID, Spaceport.Target target){
+    	Spaceport spaceport = new Spaceport("spaceport");
+    	String request = spaceport.GetShipsFor(sessionID, planetID, target);//spaceport.ViewAllShips(sessionID, String.valueOf(bID));
+    	String reply = server.ServerRequest(gameServer, spaceport.url, request);
+    	Response r = gson.fromJson(reply, Response.class);
+    	return r.result.available;
     }
 
     static void SpaceportSpammer(String planetID){
@@ -557,7 +624,7 @@ public class JavaLEWrapper {
 			System.out.println(a.type_human);
 			System.out.println(a.combat);
 			System.out.println(a.stealth);
-			
+
 			if(a.type_human.equals(typeToFind)){
 				return a;
 			}
@@ -612,7 +679,8 @@ public class JavaLEWrapper {
     		
     	//System.out.println(reply);
     }
-//    	
+    
+    //    	
 //Shipyard methods
     static void MenuFillShipyardsWith(String planetID){
     	int i = 0;
@@ -708,7 +776,7 @@ public class JavaLEWrapper {
     			default:
     				System.out.println("Invalid Selection");
     			}
-	
+
     		}catch(InputMismatchException e){
     			System.out.println("Not a valid selection.");    			
     		}    		
@@ -798,7 +866,7 @@ public class JavaLEWrapper {
     //static void RepairAllBuildings(){}
     //static void RepairGlyphBuildings(){}
  
-    //Intelligence Methods
+    //Spy Methods
     static ArrayList<Spies> GetSpies(String planetID){
     	int bID = FindBuildingID("Intelligence Ministry", planets.get(planetID).buildings);
     	Intelligence intel = new Intelligence("intelligence");
@@ -908,10 +976,12 @@ public class JavaLEWrapper {
     	int bID = FindBuildingID("Intelligence Ministry", planets.get(planetID).buildings);
     	String request, reply;
     	
-    	for(Spies s: spies){
-    		Intelligence intel = new Intelligence("intelligence");
-    		request = intel.AssignSpy(sessionID, String.valueOf(bID), s.id, assignment);
-    		reply = server.ServerRequest(gameServer, intel.url, request);
+    	for(Spies s: spies){//only assigns spies that are available
+    		if(s.is_available.contentEquals("1")){
+    			Intelligence intel = new Intelligence("intelligence");
+    			request = intel.AssignSpy(sessionID, String.valueOf(bID), s.id, assignment);
+    			reply = server.ServerRequest(gameServer, intel.url, request);
+    		}
     		
     	}
     }
@@ -954,9 +1024,36 @@ public class JavaLEWrapper {
     	
     }
     
+    static void ExecuteAllPrisoners(String planetID){
+    	int bID = FindBuildingID("Security Ministry", planets.get(planetID).buildings);
+		boolean i = true;
+		do{
+			Security security = new Security("security");
+	    	String request = security.ViewPrisoners(sessionID, String.valueOf(bID), "1");
+			String reply = server.ServerRequest(gameServer, security.url, request);
+			Response r = gson.fromJson(reply, Response.class);
+			if(r.result.captured_count.contentEquals("0"))
+				i=false;
+			else{
+				for(Response.Prisoner p: r.result.prisoners){
+					Security s = new Security("security");
+					request = s.ExecutePrisoner(sessionID, String.valueOf(bID), p.id);
+					server.ServerRequest(gameServer, security.url, request);
+					System.out.println("Prisoner: "+p.name+" Executed for "+p.task);
+				}
+			}
+		}while(i == true);
+		//if()
+		//Nothing useful is returned in the reply of execution
+    	
+    	//result.captured_count shows how many prisoners are on the planet
+    }
+    
+    
     //Station Controls
     static void PrintSSControlsMenu(){
     	System.out.println("1: Perform Status Check.  This will sort bodies from SS if it's the first time it's run");
+    	System.out.println("2: Save SS Details to file");
     	System.out.println("0: To return to the main menu");
     }
     static void SSControlsMenu(){
@@ -964,13 +1061,20 @@ public class JavaLEWrapper {
     	int control = 0;
     	Scanner input = new Scanner(System.in);
     	do{
-    		PrintPlanetControlsMenu();
+    		if(planets.isEmpty()){
+    			System.out.println("Getting planets and Stations, this may take a few minutes");
+    			SeperateSSandPlanets();
+    		}
+    		PrintSSControlsMenu();
     		try{
     			control = input.nextInt();
     			switch(control){
     			case 1:
     				SeperateSSandPlanets();
     				StationStatusCheck();
+    				break;
+    			case 2:
+    				PrintStationDetailsToFile();
     				break;
     			case 0:
     				MainMenu();
@@ -987,6 +1091,33 @@ public class JavaLEWrapper {
     }
     static void PrintSSList(){}
     
+    static void PrintStationDetailsToFile(){
+    	//Response.Result r = new Response.Result();
+    	//System.out.println("starting 2");
+    	System.out.println(stations.size());
+    	String stationID;
+    	for(String s: stationNames){
+    		System.out.println(s);
+    		stationID = GetPlanetID(s);
+    		System.out.println(stationID);
+    		String station = "";
+			if(stations.containsKey(stationID)){
+				station = "Station id: "+stationID+ " Size: "+stations.get(stationID).status.body.size+" x: "+stations.get(stationID).status.body.x+" y: "+stations.get(s).status.body.y;
+			}
+    			//station = "Station id: "+stationID+ " Size: "+stations.get(stationID).status.body.size+" x: "+stations.get(stationID).status.body.x+" y: "+stations.get(s).status.body.y;
+    		else
+    			System.out.println("station id not found in list");
+    		//System.out.println(station);
+    		//try(PrintWriter out = new PrintWriter(new FileWriter("Station.log", true))) {
+    		//	out.println(" ");
+    		//    out.println(station);
+    		//}catch (IOException e) {
+    		    //exception handling left as an exercise for the reader
+    		//}
+    	}
+    	
+    	
+    }
     //Message Controls
     static void PrintMessageBoxMenu(){
     	System.out.println("Mail Box: You have "+newMessages +" new messages");
@@ -1103,22 +1234,85 @@ public class JavaLEWrapper {
 
 
     static void LargeFleetSenderTest(String planetID){
-    	//GetShipsForTargetFromPlanet(planetID);
-		//ViewShips(planetID);
-		//Captcha();
-		ArrayList<Response.Available> availableShips = GetShipsForTargetFromPlanet(planetID);
-		Spaceport spaceport = new Spaceport("spaceport");
-		Spaceport.Target target = new Spaceport.Target();
+    	Captcha();
+    	//Target selection
+    	String choice;
+    	Spaceport.Target target = new Spaceport.Target();
+    	System.out.println("Enter Target Info");
+    	System.out.println("1: Enter Target by Name");
+		System.out.println("2: Enter Target by ID");
+		System.out.println("3: Enter Target by x,y");
+		choice = GetSingleInputFromUser("Enter a Selection");
+		int selection = Integer.parseInt(choice);
+		switch(selection){
+		case 1: 
+			target.bodyName = GetSingleInputFromUser("Enter Target Name");
+			break;
+		case 2:
+			target.bodyID = GetSingleInputFromUser("Enter Target ID");
+			break;
+		case 3:
+			target.x = GetSingleInputFromUser("Enter x coordinate");
+			target.y = GetSingleInputFromUser("Enter y coordinate");
+			break;
+		}
+
+		//Ship Type Selection
+		ArrayList<Response.Available> availableShips = GetShipsForTargetFromPlanet(planetID, target);
+		HashSet<String> availableType = new HashSet<String>();
+		if(availableShips.size() !=0){
+			for(Response.Available a: availableShips){
+				availableType.add(a.type);
+			}
+		}
+		int count = 0;
+		if(availableType.size()!=0){ //this is to print out a selection menu
+			for(String a: availableType){
+				System.out.println(a);
+			}
+		}
+		choice = GetSingleInputFromUser("Type in the ship name");
+		Spaceport.Type type = new Spaceport.Type();
+		for(Response.Available a: availableShips){
+			if(a.type.contentEquals(choice)){
+				type.combat = a.combat;
+				type.speed = a.speed;
+				type.stealth = a.stealth;
+				type.type = a.type;
+				type.quantity = GetSingleInputFromUser("Enter a number to send");
+				break;
+			}
+		}
+		Set<Spaceport.Type> t = new HashSet<Spaceport.Type>(); //adding type to a hashset that the spaceport method request, multiple different ship types can be sent
+		t.add(type);
+		
+		//Arrival Time Selection
+		System.out.println("Time selection is based on the server time and date not a projection of how far in the future, \n Day, Hour, Minute, Second");
+		System.out.println("Be sure your arrival time is valid, otherwise the request will not go through");
 		Spaceport.Arrival arrival = new Spaceport.Arrival();
+		arrival.day = GetSingleInputFromUser("Enter the day of the month for the ships to arrive");
+		arrival.hour = GetSingleInputFromUser("Enter the hour in 24 hour time");
+		arrival.minute = GetSingleInputFromUser("Enter the minute");
+		arrival.second = GetSingleInputFromUser("Enter the second");
+		
+		
+		Spaceport spaceport = new Spaceport("spaceport");
+		String request = spaceport.SendShipTypes(sessionID, planetID, target, type, arrival);
+		System.out.println(request);
+		String reply = server.ServerRequest(gameServer, spaceport.url, request);
+		System.out.println(reply);
+		
+	/*
+		//Spaceport.Arrival arrival = new Spaceport.Arrival();
 		Spaceport.Type type = new Spaceport.Type();
 		int d = 0;
-		int count = 0;
+		count = 0;
 		for(Response.Available a: availableShips){
-			System.out.println(a.type_human);
-			System.out.println(a.combat);
-			System.out.println(a.stealth);
-			
-			if(a.type_human.equals("Sweeper")){
+			System.out.println("Type Human "+a.type_human);
+			System.out.println("Combat "+a.combat);
+			System.out.println("Stealth "+a.stealth);
+
+			if(a.type_human.equals("Scanner")){
 				//System.out.println("found Scanner");
 				type.combat = a.combat;
 				type.speed = a.speed;
@@ -1127,11 +1321,11 @@ public class JavaLEWrapper {
 				//System.out.println
 				d = 1;
 			}
-			if(a.type.equals("sweeper"))
+			if(a.type.equals("scanner"))
 					count++;
 		}
 		type.quantity = "1";
-		arrival.day = "22";
+		arrival.day = "28";
 		arrival.hour = "10";
 		arrival.minute = "5";
 		arrival.second = "0";
@@ -1142,13 +1336,6 @@ public class JavaLEWrapper {
 		System.out.println(request);
 		String reply = server.ServerRequest(gameServer, spaceport.url, request);
 		System.out.println(reply);
-		boolean looper = true;
-		do{
-			request = GetSingleInputFromUser("Enter the json request");
-			System.out.println(request);
-			reply = server.ServerRequest(gameServer, spaceport.url, request);
-			System.out.println("reply");
-		}while(looper == true);
+*/
     }
 }
-

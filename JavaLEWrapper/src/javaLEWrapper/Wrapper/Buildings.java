@@ -10,7 +10,7 @@ public class Buildings extends LESuperClass {
 		System.out.println(url);
     	url = url.replace(" ", "");
     	if (url.equals("archaeologyministry"))
-    		url = "entertainment";
+    		url = "archaeology";
     	if (url.contains("beach"))
     		url = "beach";
     	if (url.contains("herder"))
@@ -57,8 +57,24 @@ public class Buildings extends LESuperClass {
     		url = "hydrocarbon";
     	if (url.contains("lapisorchard"))
     		url = "lapis";
-    	if (url.contains("lostcity"))
-    		url = "lostcityoftyleon";
+    	if (url.contains("lostcityoftyleona"))
+    		url = "lcota";
+    	if (url.contains("lostcityoftyleonb"))
+    		url = "lcotb";
+    	if (url.contains("lostcityoftyleonc"))
+    		url = "lcotc";
+    	if (url.contains("lostcityoftyleond"))
+    		url = "lcotd";
+    	if (url.contains("lostcityoftyleone"))
+    		url = "lcote";
+    	if (url.contains("lostcityoftyleonf"))
+    		url = "lcotf";
+    	if (url.contains("lostcityoftyleong"))
+    		url = "lcotg";
+    	if (url.contains("lostcityoftyleonh"))
+    		url = "lcoth";
+    	if (url.contains("lostcityoftyleoni"))
+    		url = "lcoti";
     	if (url.contains("malcudfungus"))
     		url = "malcud";
     	if (url.contains("oversight"))
@@ -101,14 +117,27 @@ public class Buildings extends LESuperClass {
     		url = "wastesequestration";
     	if (url.equals("intelligenceministry"))
     		url="intelligence";
-    	/*
-    	WasteTreatment
-    	WaterProduction
-    	WaterPurification
-    	WaterReclamation
-    	WaterStorage
-    	Wheat
-    	*/
+    	if (url.equals("wastetreatment"))
+    		url="wastetreatment";
+    	if (url.equals("waterproduction"))
+    		url="waterproduction";
+    	if (url.equals("waterpurification"))
+    		url="waterpurification";
+    	if (url.equals("waterreclamation"))
+    		url="waterreclamation";
+    	if (url.equals("waterstorage"))
+    		url="waterstorage";
+    	if (url.equals("wheat"))
+    		url="wheat";
+    	if (url.equals("spacestationlaba"))
+    		url="ssla";
+    	if (url.equals("spacestationlabb"))
+    		url="sslb";
+    	if (url.equals("spacestationlabc"))
+    		url="sslc";
+    	if (url.equals("spacestationlabd"))
+    		url="ssld";
+ 
 	}
 	String Build(String sessionID, String bodyID, String x, String y){
 		return Request("build",sessionID, bodyID, x, y);
@@ -136,14 +165,13 @@ public class Buildings extends LESuperClass {
 		return i;
 	}
 	String Repair(String sessionID, String buildingID){
-		String i = BasicRequest("repair", sessionID, buildingID);
-		return i;
+		return Request("repair", sessionID, buildingID);
+		//String i = BasicRequest("repair", sessionID, buildingID);
+		//return i;
 	}
 	 /* Building Methods
 
-view ( session_id, building_id )
-session_id
-building_id
+
 get_stats_for_level ( session_id, building_id, level )
 session_id
 building_id

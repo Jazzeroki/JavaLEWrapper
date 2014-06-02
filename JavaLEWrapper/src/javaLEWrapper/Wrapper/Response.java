@@ -9,7 +9,7 @@ public class Response {
     
     //Inner Class Definitions
     class Result{
-        String session_id, url, guid, number_of_ships_building, cost_to_subsidize, spy_count, fleet_send_limit;
+        String session_id, url, guid, number_of_ships_building, cost_to_subsidize, spy_count, fleet_send_limit, captured_count;
         DockedShips docked_ships;
         ArrayList <Spies> spies;
         ArrayList <String> possible_assignments;
@@ -25,7 +25,11 @@ public class Response {
         ArrayList<Incoming> incoming;
         //ArrayList<Unavailable> unavailable;
         ArrayList<Available> available;
+        ArrayList<Prisoner> prisoners;
         
+    }
+    class Prisoner{
+    	String leve, name, task, id, sentence_expires;
     }
     class Incoming{
     	
