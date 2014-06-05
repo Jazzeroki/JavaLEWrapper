@@ -5,7 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
+//import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -13,7 +13,7 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonWriter;
+//import com.google.gson.stream.JsonWriter;
 
 public class AccountManager {
 	static Gson gson = new Gson();
@@ -69,7 +69,7 @@ public class AccountManager {
 			int counter = 0;
 			for(AccountInfo j: accounts.accounts){
 				counter++;
-				System.out.println(counter+" : "+j.userName);
+				System.out.println(counter+" : "+j.userName+" "+j.server);
 			}
 			System.out.println("requesting input");
 			boolean z = false;

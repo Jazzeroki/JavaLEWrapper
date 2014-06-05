@@ -2,7 +2,7 @@ package javaLEWrapper.Wrapper;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Set;
+//import java.util.Set;
 
 public class Spaceport extends Buildings {
 
@@ -12,6 +12,11 @@ public class Spaceport extends Buildings {
 	}
 	String ViewAllShips(String sessionID, String buildingID){
 		String i = Request("view_all_ships", sessionID, buildingID);
+		return i;
+	}
+	String ViewAllShips(String sessionID, String buildingID, String shipType){
+		String i = "{\"id\":11,\"method\":\"view_all_ships\",\"jsonrpc\":\"2.0\",\"params\":[\""+sessionID+"\",\""+buildingID+"\",{\"no_paging\":1},{\"type\":\""+shipType+"\"},null]}";
+		//String i = "{\"id\":11,\"method\":\"view_all_ships\",\"jsonrpc\":\"2.0\",\"params\":[\""+sessionID+"\",\""+buildingID+"\",{\"page_number\":1},null,null]}";
 		return i;
 	}
 	String RecallAll(String sessionID, String buildingID){

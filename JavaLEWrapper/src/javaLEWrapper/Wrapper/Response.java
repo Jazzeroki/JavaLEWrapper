@@ -18,7 +18,8 @@ public class Response {
         Error error;
         Body body;
         HashMap<Integer, Building>buildings;
-        Messages messages[];//used when previewing multiple messages
+        ArrayList<Messages> messages;
+        //Messages messages[];//used when previewing multiple messages
         Messages message; //used when reading a single message
         ArrayList<Stars> stars;
         ArrayList<Orbiting> orbiting;
@@ -26,7 +27,17 @@ public class Response {
         //ArrayList<Unavailable> unavailable;
         ArrayList<Available> available;
         ArrayList<Prisoner> prisoners;
+        ArrayList<Excavators> excavators;
+        ArrayList<Ship> ships;
+        ArrayList<Glyph> glyphs;
         
+    }
+    class Glyph{
+    	String quantity, name, type, id;
+    }
+    class Excavators{
+    	String resource, artifact, date_landed, plan, id, glyph;
+    	Body body;
     }
     class Prisoner{
     	String leve, name, task, id, sentence_expires;
@@ -50,11 +61,13 @@ public class Response {
     	//payload[]  Don't know how this would look like yet
     }
     class Stars{
+    	//Empire empire; //
     	String zone, name, x, y, color, id;
     	Station station;
-    	ArrayList<Bodies> bodies[];
+    	ArrayList<Bodies> bodies;
     }
     class Bodies{
+    	Empire empire;
     	Station station;
     	Ore ore;
     	String star_id, zone, name, x, y, size, image, orbit, id, type, star_name;
@@ -124,6 +137,7 @@ public class Response {
         String id;
         String essentia;
         Server server;
+        String alignment;
     }
     class Server{
         String rpc_limit;
