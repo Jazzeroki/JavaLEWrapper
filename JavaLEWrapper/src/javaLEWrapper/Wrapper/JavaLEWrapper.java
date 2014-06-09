@@ -46,7 +46,7 @@ public class JavaLEWrapper {
 		}
 	} */
 
-	static String version = "Alpha 0.01";
+	static String version = "Alpha 0.02";
 	static String sessionID = null;
 	static String gameServer = null;
 	static Gson gson = new Gson();
@@ -61,6 +61,8 @@ public class JavaLEWrapper {
 	static ArrayList <String> stationNames = new ArrayList<String>(); //For storing a sorted collection of station names
 
 	public static void main(String[] args) {
+		System.out.println("Jazz Command Console "+version);
+		System.out.println("This console utility is in the Alpha stage and is used at the users own risk \nDamages inflicted on your computer or your empire are the users own responsibility");
 		ClearLog();
 		GetSession();
 		MainMenu();
@@ -70,7 +72,7 @@ public class JavaLEWrapper {
 	static void ClearLog(){
 		PrintWriter writer;
 		try {
-			writer = new PrintWriter("IO.log");
+			writer = new PrintWriter("Status.log");
 			writer.print("");
 			writer.close();
 		} catch (FileNotFoundException e) {
@@ -82,7 +84,7 @@ public class JavaLEWrapper {
 
 	}
 	static void SaveToLog(String log){
-		try(PrintWriter out = new PrintWriter(new FileWriter("IO.log", true))) {
+		try(PrintWriter out = new PrintWriter(new FileWriter("Status.log", true))) {
 			out.println(" ");
 		    out.println(log);
 		}catch (IOException e) {
@@ -191,6 +193,7 @@ public class JavaLEWrapper {
     	System.out.println(request);
     	Scanner input = new Scanner(System.in);
     	String i = input.next();
+    	//input.close();
     	return i;
     }
     //experimental methods
@@ -235,7 +238,7 @@ public class JavaLEWrapper {
 
     }
     static ArrayList<Integer> FindAllBuildingIDs(String buildingName, HashMap<Integer, Response.Building> buildings){
-    	ArrayList<Integer> i = new ArrayList();
+    	ArrayList<Integer> i = new ArrayList<Integer>();
     	Set<Integer> buildingkeys = buildings.keySet();
     	for(int j: buildingkeys){
     		if(buildings.get(j).name.equals(buildingName)){
@@ -285,9 +288,9 @@ public class JavaLEWrapper {
     		}
     		
     		//System.out.println(j);
-    		endloop++;  //remove this when done testing
-    		if (endloop == 15)
-    			break;
+    		//endloop++;  //remove this when done testing
+    		//if (endloop == 15)
+    			//break;
     	}
     	}
     	Collections.sort(planetNames);
@@ -296,68 +299,68 @@ public class JavaLEWrapper {
     static void PlanetStatusCheck(){
     	//for(String r : planets)
     	for(Entry<String, Result> e : planets.entrySet()){
-    		System.out.println(e.getValue().status.body.name);
-    		System.out.println(e.getKey());
+    		SaveToLog(e.getValue().status.body.name);
+    		SaveToLog(e.getKey());
     		if(Double.parseDouble(e.getValue().status.body.num_incoming_enemy) > 0)
-    			System.out.println("Enemy Incoming: "+e.getValue().status.body.num_incoming_enemy);
+    			SaveToLog("Enemy Incoming: "+e.getValue().status.body.num_incoming_enemy);
     		if(Double.parseDouble(e.getValue().status.body.plots_available) < 0)
-    			System.out.println("Negative plots likely bleeders present or planet out of orbit: "+ e.getValue().status.body.plots_available);
+    			SaveToLog("Negative plots likely bleeders present or planet out of orbit: "+ e.getValue().status.body.plots_available);
     		
     		if(e.getValue().status.body.water_stored < 50000)
-    			System.out.println("Low Water: "+ e.getValue().status.body.water_stored);
+    			SaveToLog("Low Water: "+ e.getValue().status.body.water_stored);
     		if(e.getValue().status.body.water_hour < 50000)
-    			System.out.println("Low Water Production: "+ e.getValue().status.body.water_hour);
+    			SaveToLog("Low Water Production: "+ e.getValue().status.body.water_hour);
     		
     		if(e.getValue().status.body.energy_stored < 50000)
-    			System.out.println("Low Energy: "+ e.getValue().status.body.energy_stored);
+    			SaveToLog("Low Energy: "+ e.getValue().status.body.energy_stored);
     		if(e.getValue().status.body.energy_hour < 50000)
-    			System.out.println("Low Energy production: "+ e.getValue().status.body.energy_hour);
+    			SaveToLog("Low Energy production: "+ e.getValue().status.body.energy_hour);
     		
     		if(e.getValue().status.body.food_stored < 50000)
-    			System.out.println("Low food: "+ e.getValue().status.body.food_stored);
+    			SaveToLog("Low food: "+ e.getValue().status.body.food_stored);
     		if(e.getValue().status.body.food_hour < 50000)
-    			System.out.println("Low food production: "+ e.getValue().status.body.food_hour);
+    			SaveToLog("Low food production: "+ e.getValue().status.body.food_hour);
     		
     		if(e.getValue().status.body.ore_stored < 50000)
-    			System.out.println("Low ore: "+ e.getValue().status.body.ore_stored);
+    			SaveToLog("Low ore: "+ e.getValue().status.body.ore_stored);
     		if(e.getValue().status.body.ore_hour < 50000)
-    			System.out.println("Low ore production: "+ e.getValue().status.body.ore_hour);
+    			SaveToLog("Low ore production: "+ e.getValue().status.body.ore_hour);
     				
     		if(e.getValue().status.body.happiness < 50000)
-    			System.out.println("Low happiness: "+ e.getValue().status.body.happiness);
+    			SaveToLog("Low happiness: "+ e.getValue().status.body.happiness);
     		if(e.getValue().status.body.happiness_hour < 50000)
-    			System.out.println("Low happiness: "+ e.getValue().status.body.happiness_hour);
+    			SaveToLog("Low happiness: "+ e.getValue().status.body.happiness_hour);
     	}
     }
     static void StationStatusCheck(){
     	//for(String r : planets)
     	for(Entry<String, Result> e : planets.entrySet()){
-    		System.out.println(e.getValue().status.body.name);
-    		System.out.println(e.getKey());
+    		SaveToLog(e.getValue().status.body.name);
+    		SaveToLog(e.getKey());
     		if(Double.parseDouble(e.getValue().status.body.num_incoming_enemy) > 0)
-    			System.out.println("Enemy Incoming: "+e.getValue().status.body.num_incoming_enemy);
+    			SaveToLog("Enemy Incoming: "+e.getValue().status.body.num_incoming_enemy);
     		if(Double.parseDouble(e.getValue().status.body.plots_available) < 0)
-    			System.out.println("Negative plots likely bleeders present or planet out of orbit: "+ e.getValue().status.body.plots_available);
+    			SaveToLog("Negative plots likely bleeders present or planet out of orbit: "+ e.getValue().status.body.plots_available);
     		
     		if(e.getValue().status.body.water_stored < 50000)
-    			System.out.println("Low Water: "+ e.getValue().status.body.water_stored);
+    			SaveToLog("Low Water: "+ e.getValue().status.body.water_stored);
     		if(e.getValue().status.body.water_hour < 50000)
     			System.out.println("Low Water Production: "+ e.getValue().status.body.water_hour);
     		
     		if(e.getValue().status.body.energy_stored < 50000)
-    			System.out.println("Low Energy: "+ e.getValue().status.body.energy_stored);
+    			SaveToLog("Low Energy: "+ e.getValue().status.body.energy_stored);
     		if(e.getValue().status.body.energy_hour < 50000)
-    			System.out.println("Low Energy production: "+ e.getValue().status.body.energy_hour);
+    			SaveToLog("Low Energy production: "+ e.getValue().status.body.energy_hour);
     		
     		if(e.getValue().status.body.food_stored < 50000)
-    			System.out.println("Low food: "+ e.getValue().status.body.food_stored);
+    			SaveToLog("Low food: "+ e.getValue().status.body.food_stored);
     		if(e.getValue().status.body.food_hour < 50000)
-    			System.out.println("Low food production: "+ e.getValue().status.body.food_hour);
+    			SaveToLog("Low food production: "+ e.getValue().status.body.food_hour);
     		
     		if(e.getValue().status.body.ore_stored < 50000)
-    			System.out.println("Low ore: "+ e.getValue().status.body.ore_stored);
+    			SaveToLog("Low ore: "+ e.getValue().status.body.ore_stored);
     		if(e.getValue().status.body.ore_hour < 50000)
-    			System.out.println("Low ore production: "+ e.getValue().status.body.ore_hour);
+    			SaveToLog("Low ore production: "+ e.getValue().status.body.ore_hour);
     		
     	}
     }
@@ -412,7 +415,7 @@ public class JavaLEWrapper {
     }
     static void PrintPlanetsListMenu(){
     	//Collections.sort(planetList);
-    	Set<String> id = planetList.keySet();
+    	//Set<String> id = planetList.keySet();
     	int i = 0;
     	System.out.println("Select the number of the planet");
     	for(String name: planetNames){
@@ -502,15 +505,15 @@ public class JavaLEWrapper {
     
     //method can also return the station id
     static String GetPlanetID(String name){
-    	String id = "";
+    	//String id = "";
     	Set<String> ids = planetList.keySet();
     	for (String i: ids){
     		if(planetList.get(i).equals(name)){
     			System.out.println(planetList.get(i) );
-    			return id = i;
+    			return i;
     		}
     	}
-    	return id = "0";
+    	return "0";
     }
 
     static void PrintIndividualPlanetOptionsMenu(){
@@ -730,7 +733,7 @@ public class JavaLEWrapper {
     }
  
     static void LaunchFleet(String planetID){
-    	int bID = FindBuildingID("spaceport", planets.get(planetID).buildings);
+    	//int bID = FindBuildingID("spaceport", planets.get(planetID).buildings);
     	Spaceport spaceport = new Spaceport("spaceport");
     	Spaceport.Target target  = new Spaceport.Target();
     	target.bodyID = GetSingleInputFromUser("Input target id");
@@ -902,10 +905,10 @@ public class JavaLEWrapper {
     	HashMap<Integer, Response.Building> buildings = planets.get(planetIDNumber).buildings;
     	Set<Integer> buildingkeys = buildings.keySet();
     	Response.Building b;
-    	String bnumber;
+    	//String bnumber;
     	//int buildingsRepaired = 0;
     	for(Integer j: buildingkeys){
-    		bnumber = String.valueOf(j);
+    		//bnumber = String.valueOf(j);
     		b = buildings.get(j);
     		System.out.println(b.name);
     	}
@@ -1251,8 +1254,11 @@ public class JavaLEWrapper {
     			case 8:
     				MessageBoxReader("Alert");
     				break;
-    			case 0:
+    			case 9:
     				MessageBoxReader("Attack");
+    				break;
+    			case 0:
+    				MainMenu();
     				break;
     			default:
     				System.out.println("Invalid Selection");
@@ -1292,16 +1298,17 @@ public class JavaLEWrapper {
     	
     	int c = 0;
     	int control = 0;
-    	Scanner input = new Scanner(System.in);
+    	//Scanner input = new Scanner(System.in);
     	do{
     		System.out.println("Select a message to read or 0 to return");
     		try{
-    			control = input.nextInt();
+    			control = Integer.parseInt(GetSingleInputFromUser(""));//input.nextInt();
     			if(control == 0){
     				c=0;
     				MessageBoxMenu();}
     			else{
     				control--;
+    				in = new Inbox();
     				//i = in.ReadMessage(1, sessionID, Integer.toString(r.result.messages.get(control).id ));
     				i = in.ReadMessage(1, sessionID, Integer.toString(messages.get(control).id ));
     				i = server.ServerRequest(gameServer, in.url, i);
@@ -1317,7 +1324,7 @@ public class JavaLEWrapper {
     		}
     		
     	}while(c==0);
-    	input.close();
+    	//input.close();
     	//System.out.println(r.result.messages[1].subject);
     }
 
@@ -1354,7 +1361,7 @@ public class JavaLEWrapper {
 				availableType.add(a.type);
 			}
 		}
-		int count = 0;
+		//int count = 0;
 		if(availableType.size()!=0){ //this is to print out a selection menu
 			for(String a: availableType){
 				System.out.println(a);

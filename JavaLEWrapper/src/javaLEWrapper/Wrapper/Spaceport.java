@@ -104,7 +104,7 @@ public class Spaceport extends Buildings {
 		String i = Request("view_ships_orbiting", sessionID, buildingID, pageNumber);
 		return i;
 	}
-	String SendSpies(String sessionID, String onBodyID, String toBodyID, String shipID, String... spyIDs ){
+	String SendSpies(String sessionID, String onBodyID, String toBodyID, String shipID, ArrayList<String> spyIDs ){
 		String b = "0";
 		try{
 			writer.beginObject();
