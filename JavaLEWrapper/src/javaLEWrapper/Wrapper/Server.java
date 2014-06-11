@@ -12,7 +12,10 @@ public class Server {
         	    Thread.currentThread().interrupt();
         	}
         	System.out.println((gameServer+"/" + methodURL));
-        	
+        	SaveToLog("Request");
+        	SaveToLog((gameServer+"/" + methodURL));
+        	SaveToLog(JsonRequest);
+        	SaveToLog("");
             URL url = new URL(gameServer+"/" + methodURL);
             URLConnection connection = url.openConnection();
             connection.setDoOutput(true);
@@ -21,23 +24,33 @@ public class Server {
             out.close();
             BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
             output = in.readLine();
-            try(PrintWriter printWriter = new PrintWriter(new FileWriter("IO.log", true))) {
-            	printWriter.println(" ");
-            	printWriter.println(gameServer+"/" + methodURL);
-            	printWriter.println(JsonRequest);
-            	printWriter.println(" ");
-            	printWriter.println(output);
-    		}catch (IOException e) {
-    		    //exception handling left as an exercise for the reader
-    		}
+            SaveToLog("Reply");
+        	SaveToLog(output);
+        	SaveToLog("");
+
         } catch (java.net.MalformedURLException e) {
         	System.out.println("Server Error IO Exception possible bad url");
-            output = "Bad URL";
+            output = "error";
+            SaveToLog("Reply");
+            SaveToLog("Malformed URL Exception");
+        	SaveToLog(output);
+        	SaveToLog(e.getMessage());
         } catch (java.io.IOException e) {
         	System.out.println("Server Error IO Exception possible bad url");
-            output = "Server IO Exception";
+            output = "error";
+            SaveToLog("Reply");
+            SaveToLog("IO Exception");
+        	SaveToLog(output);
+        	SaveToLog(e.getMessage());
         }
         return output;
 
     }
+	private void SaveToLog(String log){
+		 try(PrintWriter printWriter = new PrintWriter(new FileWriter("IO.log", true))) {
+         	printWriter.println(log);
+ 		}catch (IOException e) {
+
+ 		}
+	}
 }

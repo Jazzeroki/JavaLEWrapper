@@ -131,7 +131,7 @@ public class Spaceport extends Buildings {
 		}
 		return b;
 	}
-	String FetchSpies(String sessionID, String onBodyID, String toBodyID, String shipID, String... spyIDs ){
+	String FetchSpies(String sessionID, String onBodyID, String fromBodyID, String shipID, ArrayList<String> spyIDs ){
 		String b = "0";
 		try{
 			writer.beginObject();
@@ -141,7 +141,7 @@ public class Spaceport extends Buildings {
 			writer.name("params").beginArray();
 			writer.value(sessionID);
 			writer.value(onBodyID);
-			writer.value(toBodyID);
+			writer.value(fromBodyID);
 			writer.value(shipID);
 			for(String j: spyIDs)
 				writer.value(j);

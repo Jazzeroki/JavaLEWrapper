@@ -163,10 +163,12 @@ public class AccountManager {
               	switch(control){
             	case 1:
             		a.server = "https://us1.lacunaexpanse.com";
+            		a.aPIKey = "7f891077-aeb2-4928-b7e4-6bc71050961c";
             		i = 0;
             		break;
             	case 2:
             		a.server = "https://pt.lacunaexpanse.com";
+            		a.aPIKey = "5d76b4e5-0ef9-454d-88d1-0cdf76349492";
             		i = 0;
             		break;
             	case 4:
@@ -188,7 +190,7 @@ public class AccountManager {
 		a.userName = GetInput("Enter Username"); //input.next();
 		//System.out.println("Enter Password");
 		a.password = GetInput("Enter Password");//input.next();
-		a.aPIKey = "";
+		//a.aPIKey = "";
 		System.out.println("Adding account to list");
 		accounts.accounts.add(a);
 		//input.close();

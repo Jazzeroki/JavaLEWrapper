@@ -3,6 +3,8 @@ import com.google.gson.Gson;
 
 
 
+
+
 //import System.out;
 //import java.io.BufferedReader;
 //import java.io.File;
@@ -28,11 +30,14 @@ import java.awt.Desktop;
 //import java.awt.List;
 
 
+
+
 //import javaLEWrapper.Wrapper.OriginalResponse.Result.Prisoner;
 import javaLEWrapper.Wrapper.Response.Messages;
 import javaLEWrapper.Wrapper.Response.Result;
 import javaLEWrapper.Wrapper.Response.Spies;
 import javaLEWrapper.Wrapper.Response.Stars;
+import javaLEWrapper.Wrapper.Spaceport.Target;
 //import javaLEWrapper.Wrapper.Response.Spies.PossibleAssignments;
 //import javaLEWrapper.Wrapper.Spaceport.Target;
 
@@ -46,7 +51,7 @@ public class JavaLEWrapper {
 		}
 	} */
 
-	static String version = "Alpha 0.02";
+	static String version = "Alpha 0.03";
 	static String sessionID = null;
 	static String gameServer = null;
 	static Gson gson = new Gson();
@@ -158,7 +163,7 @@ public class JavaLEWrapper {
     			System.out.println("Not a valid selection.");   			
     		}		
     	}while(i==0);
-    	input.close();
+    	//input.close();
     }
     static void PrintExperimentalMenu(){
     	System.out.println("1: Captcha test");
@@ -187,7 +192,7 @@ public class JavaLEWrapper {
     			System.out.println("Not a valid selection.");   			
     		}		
     	}while(i==0);
-    	input.close();
+    	//input.close();
     }
     static String GetSingleInputFromUser(String request){
     	System.out.println(request);
@@ -196,6 +201,29 @@ public class JavaLEWrapper {
     	//input.close();
     	return i;
     }
+    static Spaceport.Target GetTarget(){
+    	Spaceport.Target target = new Spaceport.Target();
+    	System.out.println("Enter Target Info");
+    	System.out.println("1: Enter Target by Name");
+		System.out.println("2: Enter Target by ID");
+		System.out.println("3: Enter Target by x,y");
+		String choice = GetSingleInputFromUser("Enter a Selection");
+		int selection = Integer.parseInt(choice);
+		switch(selection){
+		case 1: 
+			target.bodyName = GetSingleInputFromUser("Enter Target Name");
+			break;
+		case 2:
+			target.bodyID = GetSingleInputFromUser("Enter Target ID");
+			break;
+		case 3:
+			target.x = GetSingleInputFromUser("Enter x coordinate");
+			target.y = GetSingleInputFromUser("Enter y coordinate");
+			break;
+		}
+    	return target;
+    }
+    
     //experimental methods
     static void Captcha(){
     	Captcha c = new Captcha();
@@ -411,7 +439,7 @@ public class JavaLEWrapper {
     		}
     		
     	}while(i==0);
-    	input.close();
+    	//input.close();
     }
     static void PrintPlanetsListMenu(){
     	//Collections.sort(planetList);
@@ -442,7 +470,7 @@ public class JavaLEWrapper {
     			System.out.println("Invalid selection.");
     		}
     	}while (i == 0);
-    	input.close();
+    	//input.close();
     }
     static void EmpireWidePlanetOptions(){
     	int i = 0;
@@ -500,7 +528,7 @@ public class JavaLEWrapper {
     		}
     		
     	}while(i==0);
-    	input.close();
+    	//input.close();
     }
     
     //method can also return the station id
@@ -526,6 +554,10 @@ public class JavaLEWrapper {
     	System.out.println("7: StarMap Test *warning* experimental");
     	System.out.println("8: Large Fleet Sender Test *warning* experimental");
     	System.out.println("9: Glyphinator *potential high rpc use*");
+    	System.out.println("10: Spy Trainer");
+    	System.out.println("11: Send Spies *warning* Experimental");
+    	System.out.println("12: Repair Glyph Buildings *warning* Experimental");
+    	System.out.println("13: Upgrade Glyph Buildings *warning* Experimental");
     	System.out.println("0: Return to Planets Menu");
     }
     static void IndividualPlanetOptionsMenu(String planetID){
@@ -571,6 +603,18 @@ public class JavaLEWrapper {
     			case 9:
     				SendOutMaxExcavators(planetID);
     				break;
+    			case 10:
+    				AssignSpiesToTrain(planetID);
+    				break;
+    			case 11:
+    				SendSpies(planetID);
+    				break;
+    			case 12:
+    				RepairGlyphBuildings(planetID);
+    				break;
+    			case 13:
+    				UpgradeGlyphBuildings(planetID);
+    				break;
     			case 0:
     				PlanetControlsMenu();
     				break;
@@ -583,7 +627,7 @@ public class JavaLEWrapper {
     			System.out.println("No Such Element Exception, contro ="+control);
     		}
     	}while(i==0);
-    	input.close();	
+    	//input.close();	
     }
     
 // Archaelogy Methods
@@ -624,8 +668,9 @@ public class JavaLEWrapper {
     							space = new Spaceport("spaceport");
     							request = space.SendShip(sessionID, ships.get(counter).id, target);
     							reply = server.ServerRequest(gameServer, space.url, request);
-    							System.out.println(reply);
-    							counter++;
+    							//System.out.println(reply);
+    							if(!reply.contentEquals("error"))
+    								counter++;
     							if(counter == toSend)
     								break;
     						}
@@ -661,6 +706,20 @@ public class JavaLEWrapper {
     	Response r = gson.fromJson(reply, Response.class);
     	return r.result.stars;
     }
+    static ArrayList<Stars> GetAllBodiesInRange(int centerx, int centery, int range){
+    	//method to support getting stars by a much larger range still in development
+    	
+    	int x1, x2, y1, y2;
+    	x1 = centerx-15;
+    	x2 = centerx+15;
+    	y1 = centery-15;
+    	y2 = centery+15;
+    	Map map = new Map();
+    	String request = map.GetStars(sessionID, Integer.toString(x1), Integer.toString(y1), Integer.toString(x2), Integer.toString(y2));
+    	String reply = server.ServerRequest(gameServer, map.url, request);
+    	Response r = gson.fromJson(reply, Response.class);
+    	return r.result.stars;
+    }
     static boolean CheckSystemHostile(ArrayList<Response.Bodies> bodies){
     	
     	for(Response.Bodies b: bodies){
@@ -685,8 +744,9 @@ public class JavaLEWrapper {
     }
     static ArrayList<Response.Available>  GetShipsForTargetFromPlanet(String planetID){
     	Spaceport spaceport = new Spaceport("spaceport");
-    	Spaceport.Target target = new Spaceport.Target();
-    	target.bodyName = GetSingleInputFromUser("Enter the target planet name");
+    	Spaceport.Target target = GetTarget();
+    	//Spaceport.Target target = new Spaceport.Target();
+    	//target.bodyName = GetSingleInputFromUser("Enter the target planet name");
     	String request = spaceport.GetShipsFor(sessionID, planetID, target);//spaceport.ViewAllShips(sessionID, String.valueOf(bID));
     	String reply = server.ServerRequest(gameServer, spaceport.url, request);
     	Response r = gson.fromJson(reply, Response.class);
@@ -879,7 +939,7 @@ public class JavaLEWrapper {
     			System.out.println("Not a valid selection.");    			
     		}    		
     	}while(i==0);
-    	input.close();
+    	//input.close();
     	
     }
     static void FillAllShipyardsWithShipTypeOnePlanet(String planetID, String shipType){
@@ -927,6 +987,19 @@ public class JavaLEWrapper {
 		System.out.println(reply);
 		//Response r = gson.fromJson(reply, Response.class);
     }
+    static void UpgradeBuilding(String buildingID, String buildingName){
+    	buildingName.toLowerCase();
+    	buildingName.replace(" ", "");
+    	//String y = buildingName.toLowerCase();
+    	//y = y.replace(" ", "");
+    	//System.out.println(buildingName);
+		Buildings b = new Buildings(buildingName);
+		String request = b.Upgrade(sessionID, buildingID);
+		System.out.println(request);
+		String reply = server.ServerRequest(gameServer, b.url, request);
+		System.out.println(reply);
+		//Response r = gson.fromJson(reply, Response.class);
+    }
     static void RepairAllPlanetBuildings(String planetIDNumber){
     	//dumbly iterates through all buildings on a planet attempting repairs if efficiency is less than 0
     	//Will save lost city for last as it's repairs are the most expensive
@@ -947,8 +1020,89 @@ public class JavaLEWrapper {
     	System.out.println(buildingsRepaired + " buildings repaired");
     }
     //static void RepairAllBuildings(){}
-    //static void RepairGlyphBuildings(){}
- 
+    static void RepairGlyphBuildings(String planetID){
+    	HashMap<Integer, Response.Building> buildings = planets.get(planetID).buildings;
+    	Set<Integer> buildingkeys = buildings.keySet();
+    	Response.Building b;
+    	String bnumber;
+    	int buildingsRepaired = 0;
+    	for(Integer j: buildingkeys){
+    		bnumber = String.valueOf(j);
+    		b = buildings.get(j);
+    		if(Integer.parseInt(b.efficiency)<100){
+    			if(b.name.contentEquals("Interdimensional Rift")
+    					||b.name.contentEquals("Pyramid Junk Sculpture")
+    					||b.name.contentEquals("Black Hole Generator")
+    					||b.name.contentEquals("Citadel of Knope")
+    					||b.name.contentEquals("Denton Brambles")
+    					||b.name.contentEquals("Ravine")
+    					||b.name.contentEquals("Oracle of Anid")
+    					||b.name.contentEquals("Gratch's Gauntlet")
+    					||b.name.contentEquals("Crashed Ship Site")
+    					||b.name.contentEquals("Natural Spring")
+    					||b.name.contentEquals("Geo Thermal Vent")
+    					||b.name.contentEquals("Algea Pond")
+    					||b.name.contentEquals("Volcano")
+    					||b.name.contentEquals("Beeldeban Nest")
+    					||b.name.contentEquals("Junk Henge Sculpture")
+    					||b.name.contentEquals("Great Ball of Junk")
+    					||b.name.contentEquals("Metal Junk Arches")
+    					||b.name.contentEquals("Kalavian Ruins")
+    					||b.name.contentEquals("Malcud Field")
+    					||b.name.contentEquals("Temple of the Drajilites")
+    					||b.name.contentEquals("Space Junk Park")
+    					||b.name.contentEquals("Pantheon of Hagness")
+    					){
+    				System.out.println("Repairing Building: "+b.name);
+    				RepairBuilding(bnumber,b.name );
+    				buildingsRepaired++;
+    			}
+    		}
+    	}
+    	System.out.println(buildingsRepaired + " buildings repaired");
+    }
+    static void UpgradeGlyphBuildings(String planetID){
+    	//Copied code from repair since it'll be similar
+    	HashMap<Integer, Response.Building> buildings = planets.get(planetID).buildings;
+    	Set<Integer> buildingkeys = buildings.keySet();
+    	Response.Building b;
+    	String bnumber;
+    	int buildingsRepaired = 0;
+    	for(Integer j: buildingkeys){
+    		bnumber = String.valueOf(j);
+    		b = buildings.get(j);
+    		if(Integer.parseInt(b.level)<30){
+    			if(b.name.contentEquals("Interdimensional Rift")
+    					//||b.name.contentEquals("Pyramid Junk Sculpture")
+    					||b.name.contentEquals("Black Hole Generator")
+    					||b.name.contentEquals("Citadel of Knope")
+    					||b.name.contentEquals("Denton Brambles")
+    					||b.name.contentEquals("Ravine")
+    					||b.name.contentEquals("Oracle of Anid")
+    					||b.name.contentEquals("Gratch's Gauntlet")
+    					||b.name.contentEquals("Crashed Ship Site")
+    					||b.name.contentEquals("Natural Spring")
+    					||b.name.contentEquals("Geo Thermal Vent")
+    					||b.name.contentEquals("Algea Pond")
+    					||b.name.contentEquals("Volcano")
+    					||b.name.contentEquals("Beeldeban Nest")
+    					//||b.name.contentEquals("Junk Henge Sculpture")
+    					//||b.name.contentEquals("Great Ball of Junk")
+    					//||b.name.contentEquals("Metal Junk Arches")
+    					||b.name.contentEquals("Kalavian Ruins")
+    					||b.name.contentEquals("Malcud Field")
+    					||b.name.contentEquals("Temple of the Drajilites")
+    					//||b.name.contentEquals("Space Junk Park")
+    					||b.name.contentEquals("Pantheon of Hagness")
+    					){
+    				System.out.println("Repairing Building: "+b.name);
+    				UpgradeBuilding(bnumber,b.name );
+    				buildingsRepaired++;
+    			}
+    		}
+    	}
+    	System.out.println(buildingsRepaired + " buildings repaired");
+    }
     //Spy Methods
     static ArrayList<Spies> GetSpies(String planetID){
     	int bID = FindBuildingID("Intelligence Ministry", planets.get(planetID).buildings);
@@ -1050,7 +1204,7 @@ public class JavaLEWrapper {
     		}
     		
     	}while(i==0);
-    	input.close();
+    	//input.close();
 		return null;
     }
     static void AssignAllSpies(ArrayList <Spies> spies, String planetID, String assignment){
@@ -1068,40 +1222,142 @@ public class JavaLEWrapper {
     		
     	}
     }
-    static void AssignAllSpiesToTrain(ArrayList <Spies> spies, String planetID){
-    	if(captchaValid==false)
-    		Captcha();
-    	int bID = FindBuildingID("Intelligence Ministry", planets.get(planetID).buildings);
-    	String request, reply, assignment = "";
-    	int count = 0;
-    	for(Spies s: spies){
-    		if(count == 0)
-    			assignment =  "Intel Training";
-    		if(count == 17)
-    			assignment =  "Mayhem Training";
-    		if(count == 35)
-    			assignment =  "Mayhem Training";
-    		if(count == 53)
-    			assignment =  "Mayhem Training";
-    		if(count == 71)
-    			assignment =  "Mayhem Training";
-    		Intelligence intel = new Intelligence("intelligence");
-    		request = intel.AssignSpy(sessionID, String.valueOf(bID), s.id, assignment);
-    		reply = server.ServerRequest(gameServer, intel.url, request);
-    		count++;
+    static void AssignSpiesToTrain(String planetID){
+    	Captcha();
+    	System.out.println("This assigns an equal number of spies to each type of training \nand all remaining and max level spies on the planet to Counter Espionage");
+    	//this method is still under development and has lots of test code.  It doesn't do anything really yet.
+    	String numb = GetSingleInputFromUser("Enter the number of spies to have training in each assignment");
+    	int numbToTrain = Integer.parseInt(numb);
+    	//ArrayList<String> intelTraining, politicalTraining, theftTraining, mayhemTraining, counter;
+    	ArrayList<Spies> spyList = GetSpies(planetID);
+    	int buildingID = FindBuildingID("Intelligence Ministry", planets.get(planetID).buildings);
+    	int intelCounter = 0;
+    	int politicalCounter = 0;
+    	int theftCounter = 0;
+    	int mayhemCounter = 0;
+    	int counterEsp = 0;
+    	for(Spies s: spyList){
+    		if(s.assigned_to.body_id.contentEquals(planetID) && s.is_available.contentEquals("1")){
+    		if(Integer.parseInt(s.level) >= 78 && !s.assignment.contentEquals("Counter Espionage")){
+    			//if spy is already max level and not already on counter espionage
+    			Intelligence intel = new Intelligence("intelligence");
+    			String request = intel.AssignSpy(sessionID, String.valueOf(buildingID), s.id, "Counter Espionage");
+    			//System.out.println(request);
+    			String reply = server.ServerRequest(gameServer, intel.url, request);
+    			//System.out.println(reply);
+    			counterEsp++;
+    			System.out.println("Assigning "+s.name+" to Counter Espionage");
+    		}
+    		else if(Integer.parseInt(s.mayhem) < 2600 && mayhemCounter < numbToTrain){
+    			Intelligence intel = new Intelligence("intelligence");
+    			String request = intel.AssignSpy(sessionID, String.valueOf(buildingID), s.id, "Mayhem Training");
+    			//System.out.println(request);
+    			String reply = server.ServerRequest(gameServer, intel.url, request);
+    			//System.out.println(reply);
+    			mayhemCounter++;
+    			System.out.println("Assigning "+s.name+" to Mayhem Training");
+    		}
+    		else if(Integer.parseInt(s.intel) < 2600 && intelCounter < numbToTrain){
+    			Intelligence intel = new Intelligence("intelligence");
+    			String request = intel.AssignSpy(sessionID, String.valueOf(buildingID), s.id, "Intel Training");
+    			//System.out.println(request);
+    			String reply = server.ServerRequest(gameServer, intel.url, request);
+    			//System.out.println(reply);
+    			intelCounter++;
+    			System.out.println("Assigning "+s.name+" to Intel Training");
+    		}
+    		else if(Integer.parseInt(s.politics) < 2600 && politicalCounter < numbToTrain){
+    			Intelligence intel = new Intelligence("intelligence");
+    			String request = intel.AssignSpy(sessionID, String.valueOf(buildingID), s.id, "Political Propaganda");
+    			//System.out.println(request);
+    			String reply = server.ServerRequest(gameServer, intel.url, request);
+    			//System.out.println(reply);
+    			politicalCounter++;
+    		}
+    		else if(Integer.parseInt(s.theft) < 2600 && theftCounter < numbToTrain){
+    			Intelligence intel = new Intelligence("intelligence");
+    			String request = intel.AssignSpy(sessionID, String.valueOf(buildingID), s.id, "Theft Training");
+    			//System.out.println(request);
+    			String reply = server.ServerRequest(gameServer, intel.url, request);
+    			//System.out.println(reply);
+    			theftCounter++;
+    			System.out.println("Assigning "+s.name+" to Theft Training");
+    		}
+    		else{
+    			Intelligence intel = new Intelligence("intelligence");
+    			String request = intel.AssignSpy(sessionID, String.valueOf(buildingID), s.id, "Counter Espionage");
+    			String reply = server.ServerRequest(gameServer, intel.url, request);
+    			counterEsp++;
+    			System.out.println("Assigning "+s.name+" to Counter Espionage");
+    		}
+    		}
+    			
     	}
+    	System.out.println(2600/(30/numbToTrain)+" is the approximate number of hours until max training is reached \nif training building is level 30");
     }
-    static void SendSpies(){
+    static void SendSpies(String planetID){
+    	Captcha();
+    	String toBodyID = GetSingleInputFromUser("Enter target body ID");
+    	
+    	Spaceport spaceport = new Spaceport("spaceport");
+    	String request = spaceport.PrepareSendSpies(sessionID, planetID, toBodyID);
+    	System.out.println(request);
+    	String reply = server.ServerRequest(gameServer, spaceport.url, request);
+    	System.out.println(reply);
+    	Response r = gson.fromJson(reply, Response.class);
+    	System.out.println("Max number of spies available to send "+r.result.spies.size());
+    	
+    	String maxToSend = GetSingleInputFromUser("Enter the maximum number of spies to send");
+    	String minimumLevel = GetSingleInputFromUser("Enter the minimum Level of the spies to send/nMax level is 78");
+    	ArrayList<String> spiesToSend = new ArrayList<String>();
+    	if(r.result.spies.size() != 0){
+    		int send = Integer.parseInt(maxToSend);
+    		int minLevel = Integer.parseInt(minimumLevel);
+    		int counter = 0;
+    		for(Spies s: r.result.spies){
+    			if(counter == send)
+    				break;
+    			else{
+    				if(Integer.parseInt(s.level) >= minLevel){
+    					spiesToSend.add(s.id);
+    				}
+    			}
+    			
+    		}
+    		if(spiesToSend.size() != 0){
+    			String shipID;
+    			for(Response.Ship s: r.result.ships){
+    				if(s.type.contentEquals("smugglership")){
+    					shipID = s.id;
+    					spaceport = new Spaceport("spaceport");
+    			    	request = spaceport.SendSpies(sessionID, planetID, toBodyID, shipID, spiesToSend);
+    			    	System.out.println(request);
+    			    	reply = server.ServerRequest(gameServer, spaceport.url, request);
+    			    	System.out.println(reply);
+    			    	System.out.println(spiesToSend.size()+" Spies sent");
+    			    	break;
+    				}
+    			}
+    		}
+    		else
+    			System.out.println("No spies meet the requirements to send");
+    	}
     	
     }
     static void SpyRun(){
     	
     }
-    static void FetchSpies(){
-    	
+    static void FetchSpies(String planetID){
+    	//Spaceport spaceport = new Spaceport("spaceport");
+    	//String request = spaceport.PrepareFetchSpies(sessionID, planetID, fromBodyID);
+    	//System.out.println(request);
+    	//String reply = server.ServerRequest(gameServer, spaceport.url, request);
+    	//System.out.println(reply);
     }
-    static void TrainNewSpies(){
-    	
+    static void TrainNewSpies(String planetID){
+    	Intelligence intelligence = new Intelligence("intelligence");
+    	int buildingID = FindBuildingID("Intelligence Ministry", planets.get(planetID).buildings);
+    	//String request = intelligence.ViewAllSpies(sessionID, buildingID);
     }
     static void SetSpiesMinistryTraining(){
     	
@@ -1170,7 +1426,7 @@ public class JavaLEWrapper {
     			System.out.println("Not a valid selection.");			
     		}		
     	}while(i==0);
-    	input.close();
+    	//input.close();
     }
     static void PrintSSList(){}
     
