@@ -40,7 +40,7 @@ public class Response {
     	Body body;
     }
     class Prisoner{
-    	String leve, name, task, id, sentence_expires;
+    	String level, name, task, id, sentence_expires;
     }
     class Incoming{
     	
